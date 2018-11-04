@@ -1,0 +1,76 @@
+.container {
+  width: 100%;
+  height: 100vh;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container h2 {
+  font-size: 5rem;
+}
+
+.container a {
+  font-size: 1.4rem;
+}
+
+.navBar {
+  height: 64px;
+  width: 100%;
+  display: flex;
+  background-color: skyblue;
+}
+
+.searchPanel {
+  width: 100%;
+  background-color: green;
+}
+
+.searchPanel .searchInputContainer {
+  display: flex;
+  justify-content: space-between;
+  padding: 24px 80px;
+}
+
+.searchPanel .luckyPanel {
+  position: relative;
+  width: 100%;
+  min-height: 48px;
+  padding: 24px 40px;
+  border-top: 2px solid red;
+}
+
+.luckyPanel .toggleBtn {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  background-color: yellow;
+}
+
+.luckyPanel .recommendedGallery {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.galleryCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.galleryContainer {
+  display: flex;
+  padding: 40px 120px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.galleryContainer .galleryCard {
+  margin-bottom: 24px;
+}
