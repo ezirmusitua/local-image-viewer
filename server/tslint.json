@@ -10,6 +10,7 @@
     "no-console": false,
     "trailing-comma": false,
     "eofline": false,
+    "semicolon": false,
     "quotemark": [
       true,
       "single"
