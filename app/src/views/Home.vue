@@ -2,14 +2,14 @@
   div.home
     SearchPanel
     v-divider
-    GalleryList
+    GalleryList(:galleries="galleries")
 </template>
 
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
   import SearchPanel from '../components/SearchPanel.vue';
   import GalleryList from '../components/GalleryList.vue';
-  import { SessionAPIs, SessionResource } from '@/resources/session';
+  import { GalleryResource, GalleryAPIs } from '@/resources/gallery';
 
   @Component({
     components: {
@@ -18,13 +18,17 @@
     },
   })
   export default class Home extends Vue {
+    galleries = [];
+    galleryCount = 0;
+
     mounted() {
       this.debug();
     }
 
     async debug() {
-      const sessions = await SessionResource.request(SessionAPIs.LIST)
-      console.log(sessions)
+      const {galleries, count} = await GalleryResource.request(GalleryAPIs.RANDOM)
+      this.galleries = galleries;
+      this.galleryCount = count;
     }
   }
 </script>

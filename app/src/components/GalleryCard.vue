@@ -12,23 +12,29 @@
     alt="thumbnail"
     aspect-ratio="1"
     class="grey lighten-2"
-    src="https://picsum.photos/500/300?image=15"
-    lazy-src="https://picsum.photos/10/6?image=15"
+    :src="thumbnail"
     )
     v-card-title(primary-title)
       .description
-        h3.name How to create Vue app in steps
-        p.count 100P
+        h3.name {{ gallery.name }}
+        p.count {{ gallery.fileCount }} P
 
 
 </template>
 
 <script>
   import { Component, Vue } from 'vue-property-decorator';
+  import { concatThumbnail } from '../resources/gallery';
 
-  @Component({})
+  @Component({
+    props: {
+      gallery: Object
+    }
+  })
   export default class GalleryCard extends Vue {
-
+    get thumbnail() {
+      return concatThumbnail(this.gallery)
+    }
   }
 
 </script>

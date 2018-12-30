@@ -13,10 +13,10 @@
   v-container.gallery-list
     v-layout(wrap)
       v-flex(
-      v-for="n in 9"
-      :key="n"
+      v-for="(g, idx) in galleries"
+      :key="idx"
       )
-        GalleryCard.card
+        GalleryCard.card(:gallery="g")
 
 </template>
 
@@ -26,6 +26,9 @@
 
   @Component({
     components: {GalleryCard},
+    props: {
+      galleries: Array,
+    }
   })
   export default class GalleryList extends Vue {}
 </script>
