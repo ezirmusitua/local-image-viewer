@@ -1,3 +1,9 @@
+<style lang="scss">
+  main {
+    padding: 0;
+  }
+</style>
+
 <template lang="pug">
   v-app
     v-toolbar(app)
@@ -8,15 +14,9 @@
 </template>
 
 <script>
-  import HelloWorld from './components/HelloWorld'
+  import { Component, Vue } from 'vue-property-decorator';
 
-  export default {
-    name: 'App',
-    components: {HelloWorld},
-    data() {
-      return {
-        //
-      }
-    },
+  @Component({})
+  export default class App extends Vue {
   }
 </script>

@@ -1,17 +1,19 @@
+
 <template lang="pug">
   div.home
     SearchPanel
-    HelloWorld
+    v-divider
+    GalleryList
 </template>
 
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
-  import HelloWorld from '../components/HelloWorld.vue';
   import SearchPanel from '../components/SearchPanel.vue';
+  import GalleryList from '../components/GalleryList.vue';
 
   @Component({
     components: {
-      HelloWorld,
+      GalleryList,
       SearchPanel,
     },
   })
