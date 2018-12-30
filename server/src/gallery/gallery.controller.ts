@@ -1,4 +1,13 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  ParseIntPipe,
+  Post,
+  Query,
+  Response,
+} from '@nestjs/common';
 import { GalleryService } from './gallery.service';
 import { Gallery } from './dto/gallery.dto';
 
@@ -14,8 +23,24 @@ export class GalleryController {
     return this.galleryService.upsertRepo();
   }
 
+  @Get('/random')
+  random(): Promise<{ galleries: Gallery[], count: number }> {
+    return this.galleryService.random();
+  }
+
+  @Get('/thumbnail')
+  thumbnail(@Query('id', ParseIntPipe) id: number, @Response() res) {
+    try {
+      const {content, type} = this.galleryService.thumbnail(id);
+      return res.type(type).send(content);
+    } catch (e) {
+      console.error(e);
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+  }
+
   @Get()
   list(): Promise<{ galleries: Gallery[], count: number }> {
-    return this.galleryService.findAll();
+    return this.galleryService.list();
   }
 }
