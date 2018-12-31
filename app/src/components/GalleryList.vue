@@ -6,7 +6,6 @@
       margin-bottom: 20px;
     }
   }
-
 </style>
 
 <template lang="pug">
@@ -20,15 +19,14 @@
 
 </template>
 
-<script>
-  import { Component, Vue } from 'vue-property-decorator';
-  import GalleryCard from './GalleryCard';
+<script lang="ts">
+  import { Component, Prop, Vue } from 'vue-property-decorator';
+  import GalleryCard from '@/components/GalleryCard.vue';
 
   @Component({
     components: {GalleryCard},
-    props: {
-      galleries: Array,
-    }
   })
-  export default class GalleryList extends Vue {}
+  export default class GalleryList extends Vue {
+    @Prop() private galleries: object[] = [];
+  }
 </script>

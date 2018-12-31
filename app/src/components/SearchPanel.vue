@@ -7,6 +7,7 @@
   .search-panel {
     height: 320px;
     width: 1280px;
+
     .container {
       height: 100%;
       width: 100%;
@@ -46,13 +47,10 @@
                 v-btn.button(color="info") Random
 </template>
 
-<script>
+<script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
-  import GalleryCard from './GalleryCard';
 
-  @Component({
-    components: {GalleryCard},
-  })
+  @Component({})
   export default class SearchPanel extends Vue {
   }
 </script>

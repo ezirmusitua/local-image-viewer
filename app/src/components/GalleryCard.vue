@@ -22,16 +22,14 @@
 
 </template>
 
-<script>
-  import { Component, Vue } from 'vue-property-decorator';
-  import { concatThumbnail } from '../resources/gallery';
+<script lang="ts">
+  import { Component, Prop, Vue } from 'vue-property-decorator';
+  import { concatThumbnail } from '@/resources/gallery';
 
-  @Component({
-    props: {
-      gallery: Object
-    }
-  })
+  @Component
   export default class GalleryCard extends Vue {
+    @Prop() public gallery: { id?: number } = {};
+
     get thumbnail() {
       return concatThumbnail(this.gallery)
     }
