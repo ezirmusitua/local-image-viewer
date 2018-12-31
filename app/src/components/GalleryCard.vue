@@ -16,8 +16,8 @@
     )
     v-card-title(primary-title)
       .description
-        h3.name {{ gallery.name }}
-        p.count {{ gallery.fileCount }} P
+        h3.name {{ name }}
+        p.count {{ fileCount }} P
 
 
 </template>
@@ -28,10 +28,18 @@
 
   @Component
   export default class GalleryCard extends Vue {
-    @Prop() public gallery: { id?: number } = {};
+    @Prop() public gallery!: { id?: number, name: string, fileCount: number };
 
     get thumbnail() {
       return concatThumbnail(this.gallery)
+    }
+
+    get name() {
+      return this.gallery.name;
+    }
+
+    get fileCount() {
+      return this.gallery.fileCount;
     }
   }
 

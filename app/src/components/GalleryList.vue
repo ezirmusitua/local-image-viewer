@@ -20,13 +20,15 @@
 </template>
 
 <script lang="ts">
-  import { Component, Prop, Vue } from 'vue-property-decorator';
+  import { Component, Vue } from 'vue-property-decorator';
+  import { State } from 'vuex-class';
   import GalleryCard from '@/components/GalleryCard.vue';
+  import { HOME_STORE_NAME } from '@/stores/home';
 
   @Component({
     components: {GalleryCard},
   })
   export default class GalleryList extends Vue {
-    @Prop() private galleries: object[] = [];
+    @State('galleries', {namespace: HOME_STORE_NAME}) private galleries!: object[];
   }
 </script>

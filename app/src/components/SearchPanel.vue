@@ -30,11 +30,12 @@
 <template lang="pug">
   v-container.search-panel
     v-layout.container(align-center justify-center)
-      v-flex(lg6 md8 sm10 xs12)
+      v-flex(lg8 md10 sm10 xs12)
         h4.display-1 View Images In Your Computer
         v-form.form
           v-layout(column align-center)
             v-text-field.input.headline(
+            v-model="filter.name"
             single-line
             clearable
             height="48"
@@ -48,9 +49,18 @@
 </template>
 
 <script lang="ts">
-  import { Component, Vue } from 'vue-property-decorator';
+  import { Component, Vue, Watch } from 'vue-property-decorator';
+  import { Action, State } from 'vuex-class';
+  import { HOME_STORE_NAME } from '@/stores/home';
 
   @Component({})
   export default class SearchPanel extends Vue {
+    @State('filter', {namespace: HOME_STORE_NAME}) public filter!: object;
+    @Action('listGallery', {namespace: HOME_STORE_NAME}) private listGallery!: any;
+
+    @Watch('filter', {deep: true, immediate: true})
+    private onFilterChange() {
+      this.listGallery();
+    }
   }
 </script>
