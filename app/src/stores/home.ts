@@ -1,4 +1,3 @@
-import Vuex from 'vuex'
 import { GalleryAPIs, GalleryResource } from '@/resources/gallery'
 
 export const HOME_STORE_NAME = 'home';
