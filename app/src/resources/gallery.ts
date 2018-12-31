@@ -7,6 +7,8 @@ const EndPoint = 'gallery';
 export const GalleryAPIs = {
   LIST: 'list',
   RANDOM: 'random',
+  DETAIL: 'detail',
+  IMAGE: 'image',
 }
 const Routes: RouteObject[] = [{
   method: METHODS.GET,
@@ -24,6 +26,12 @@ const Routes: RouteObject[] = [{
   path: '/random',
   paramsSchema: {},
   dataSchema: {},
+}, {
+  method: METHODS.GET,
+  name: GalleryAPIs.DETAIL,
+  path: '/:id',
+  paramsSchema: {},
+  dataSchema: {},
 }];
 
 export const GalleryResource = new Resource(EndPoint, Routes)
@@ -31,4 +39,8 @@ export const GalleryResource = new Resource(EndPoint, Routes)
 export function concatThumbnail(gallery: { id?: number }) {
   const {id} = gallery;
   return `${Config.backend}/${EndPoint}/thumbnail?id=${id}`;
+}
+
+export function concatImage(id: number, name: string) {
+  return `${Config.backend}/${EndPoint}/${id}/image/${name}`;
 }
