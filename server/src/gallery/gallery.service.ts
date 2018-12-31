@@ -84,4 +84,21 @@ export class GalleryService {
     const type = `image/${path.extname(gallery.thumbnail).slice(1)}`
     return {content, type};
   }
+
+  detail(id: number) {
+    const galleryCollection = database.getCollection('gallery');
+    const gallery = galleryCollection.findOne({$loki: id});
+    if (!gallery) throw new Error('Gallery not found');
+    return gallery;
+  }
+
+  image(id: number, name: string): { content: Buffer, type: string } {
+    const galleryCollection = database.getCollection('gallery');
+    const gallery = galleryCollection.findOne({$loki: id});
+    const image = gallery && gallery.files.find(f => f === name);
+    if (!image) throw Error(`Image not found`);
+    const content = fs.readFileSync(path.join(gallery.path, image));
+    const type = `image/${path.extname(image).slice(1)}`
+    return {content, type};
+  }
 }

@@ -2,7 +2,7 @@ import {
   Controller,
   Get,
   HttpException,
-  HttpStatus,
+  HttpStatus, Param,
   ParseIntPipe,
   Post,
   Query,
@@ -33,6 +33,32 @@ export class GalleryController {
     try {
       const {content, type} = this.galleryService.thumbnail(id);
       return res.type(type).send(content);
+    } catch (e) {
+      console.error(e);
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Get('/:id/image/:name')
+  image(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('name') name: string,
+    @Response() res,
+  ) {
+    try {
+      const {content, type} = this.galleryService.image(id, name);
+      return res.type(type).send(content);
+    } catch (e) {
+      console.error(e);
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Get('/:id')
+  detail(@Param('id', ParseIntPipe) id: number) {
+    try {
+      const gallery = this.galleryService.detail(id);
+      return {gallery};
     } catch (e) {
       console.error(e);
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
