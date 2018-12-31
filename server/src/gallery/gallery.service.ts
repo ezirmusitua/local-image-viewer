@@ -57,16 +57,23 @@ export class GalleryService {
         name: g.name,
         fileCount: g.fileCount,
         thumbnail: g.thumbnail,
-      })), count: galleries.length,
+      })),
+      count: galleries.length,
     }
   }
 
-  async list(name: string = ''): Promise<{ galleries: Gallery[], count: number }> {
-    const gallery = database.getCollection('gallery');
-    const galleries = gallery.find({
-      name: {$regex: name},
-    });
-    return {galleries, count: galleries.length};
+  async list(query, pageIndex, pageSize): Promise<{ galleries: Gallery[], count: number }> {
+    const galleryCollection = database.getCollection('gallery');
+    const count = galleryCollection.count(query);
+    const galleries = galleryCollection
+      .chain()
+      .find(query)
+      .simplesort('updateAt')
+      .offset((pageIndex - 1) * pageSize)
+      .limit(pageSize)
+      .data()
+      .map(g => ({...g, id: g.$loki}));
+    return {galleries, count};
   }
 
   thumbnail(id: number): { content: Buffer, type: string } {

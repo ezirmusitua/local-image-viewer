@@ -40,7 +40,17 @@ export class GalleryController {
   }
 
   @Get()
-  list(): Promise<{ galleries: Gallery[], count: number }> {
-    return this.galleryService.list();
+  list(
+    @Query('name') name: string,
+    @Query('pageIndex', ParseIntPipe) pageIndex: number = 1,
+    @Query('pageSize', ParseIntPipe) pageSize: number = 9,
+  ): Promise<{ galleries: Gallery[], count: number }> {
+    let query = {} as any;
+    if (name) {
+      query.name = {$regex: name};
+    } else {
+      query = null;
+    }
+    return this.galleryService.list(query, pageIndex, pageSize);
   }
 }
