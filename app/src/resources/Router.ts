@@ -23,13 +23,9 @@ export interface RouteObject {
 
 export class Router {
   public routes: { [key: string]: RouteInterface };
-  public paramsSchemas: { [key: string]: SchemaMap };
-  public dataSchemas: { [key: string]: SchemaMap };
 
   constructor() {
     this.routes = {};
-    this.paramsSchemas = {};
-    this.dataSchemas = {};
   }
 
   public route({
@@ -39,8 +35,6 @@ export class Router {
                  paramsSchema,
                  dataSchema,
                }: RouteObject) {
-    this.paramsSchemas[name] = paramsSchema;
-    this.dataSchemas[name] = dataSchema;
     this.routes[name] = {
       method: METHODS.GET,
       url: path,
