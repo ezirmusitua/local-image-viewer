@@ -18,5 +18,5 @@ const Backends = {
 };
 
 export class Config {
-  static backend = Backends[ENV];
+  public static backend = Backends[ENV];
 }

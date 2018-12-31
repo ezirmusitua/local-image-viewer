@@ -1,4 +1,4 @@
-import joi, { ValidationResult, Schema } from 'joi';
+import joi, { ValidationResult, Schema, SchemaMap } from 'joi';
 import { AxiosRequestConfig } from 'axios'
 
 export enum METHODS {
@@ -17,15 +17,19 @@ export interface RouteObject {
   method: METHODS,
   name: string,
   path: string,
-  paramsSchema: Schema,
-  dataSchema: Schema
+  paramsSchema: SchemaMap,
+  dataSchema: SchemaMap
 }
 
 export class Router {
   public routes: { [key: string]: RouteInterface };
+  public paramsSchemas: { [key: string]: SchemaMap };
+  public dataSchemas: { [key: string]: SchemaMap };
 
   constructor() {
     this.routes = {};
+    this.paramsSchemas = {};
+    this.dataSchemas = {};
   }
 
   public route({
@@ -35,11 +39,19 @@ export class Router {
                  paramsSchema,
                  dataSchema,
                }: RouteObject) {
+    this.paramsSchemas[name] = paramsSchema;
+    this.dataSchemas[name] = dataSchema;
     this.routes[name] = {
       method: METHODS.GET,
       url: path,
-      paramsValidator: (params: object) => joi.validate(params, paramsSchema || {}),
-      dataValidator: (data: object) => joi.validate(data, dataSchema || {}),
+      paramsValidator: (params: object) => {
+        const schema = joi.object().keys(paramsSchema);
+        return joi.validate(params, schema);
+      },
+      dataValidator: (data: object) => {
+        const schema = joi.object().keys(dataSchema);
+        return joi.validate(data, schema);
+      },
     };
   }
 }
