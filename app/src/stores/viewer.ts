@@ -8,12 +8,14 @@ interface ViewerState {
   galleryId: number | null,
   gallery: any,
   progress: number,
+  galleriesRecommendation: object[];
 }
 
 const state: ViewerState = {
   galleryId: null,
   gallery: {},
   progress: 1,
+  galleriesRecommendation: [],
 };
 
 const getters = {
@@ -26,6 +28,9 @@ const getters = {
   fileCount(s: ViewerState) {
     return s.gallery.fileCount;
   },
+  shouldLoadRecommendation(s: ViewerState) {
+    return s.gallery.fileCount - s.progress * VIEWER_ROUND_FILE_COUNT < VIEWER_ROUND_FILE_COUNT;
+  },
   progressPercentage(s: ViewerState) {
     return `${((s.progress * VIEWER_ROUND_FILE_COUNT) / s.gallery.fileCount) * 100}%`
   },
@@ -37,6 +42,9 @@ const mutations = {
   },
   changeGalleryId(s: ViewerState, id: number) {
     s.galleryId = id;
+  },
+  changeRecommendGalleries(s: ViewerState, galleries: object[]) {
+    s.galleriesRecommendation = galleries;
   },
   increaseProgress(s: ViewerState) {
     s.progress += 1;
@@ -55,6 +63,10 @@ const actions = {
       galleryId: s.galleryId,
       lasting: 30 * 1000,
     });
+  },
+  async loadRecommendation({commit}: { commit: any }) {
+    const {galleries} = await GalleryResource.request(GalleryAPIs.RECOMMEND);
+    commit('changeRecommendGalleries', galleries);
   },
 }
 

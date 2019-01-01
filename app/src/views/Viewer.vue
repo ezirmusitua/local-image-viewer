@@ -13,6 +13,11 @@
       :key="idx"
       :src="concatImage(galleryId, i)"
       )
+    v-divider.mt-4.mb-4
+    v-layout(align-center justify-space-around wrap)
+      v-flex(lg2 md4 sm12 xs12 v-for="(g, idx) in galleriesRecommendation" :key="idx")
+        v-layout.mb-3(align-center justify-center)
+          GalleryCard(:gallery="g")
 </template>
 
 <script lang="ts">
@@ -21,21 +26,36 @@
   import { VIEWER_STORE_NAME } from '@/stores/viewer';
   import { concatImage } from '@/resources/gallery';
   import VerticalProgress from '@/components/VerticalProgress.vue';
+  import GalleryCard from '@/components/GalleryCard.vue';
 
   const SCROLL_THRESHOLD = 1500;
   const SCROLL_TIMEOUT = 300;
   @Component({
-    components: {VerticalProgress},
+    components: {GalleryCard, VerticalProgress},
   })
   export default class Viewer extends Vue {
-    @State('gallery', {namespace: VIEWER_STORE_NAME}) private gallery!: object;
-    @State('progress', {namespace: VIEWER_STORE_NAME}) private progress!: number;
-    @Getter('progressPercentage', {namespace: VIEWER_STORE_NAME}) private progressPercentage!: string;
-    @Getter('images', {namespace: VIEWER_STORE_NAME}) private images!: string[];
-    @Mutation('changeGalleryId', {namespace: VIEWER_STORE_NAME}) private changeId!: any;
-    @Mutation('increaseProgress', {namespace: VIEWER_STORE_NAME}) private increaseProgress!: any;
-    @Action('getDetail', {namespace: VIEWER_STORE_NAME}) private load!: any;
-    @Action('trackSessionView', {namespace: VIEWER_STORE_NAME}) private trackView!: any;
+    @State('gallery', {namespace: VIEWER_STORE_NAME})
+    private gallery!: object;
+    @State('progress', {namespace: VIEWER_STORE_NAME})
+    private progress!: number;
+    @State('galleriesRecommendation', {namespace: VIEWER_STORE_NAME})
+    private galleriesRecommendation!: object[];
+    @Getter('progressPercentage', {namespace: VIEWER_STORE_NAME})
+    private progressPercentage!: string;
+    @Getter('images', {namespace: VIEWER_STORE_NAME})
+    private images!: string[];
+    @Getter('shouldLoadRecommendation', {namespace: VIEWER_STORE_NAME})
+    private shouldLoadRecommendation!: boolean;
+    @Mutation('changeGalleryId', {namespace: VIEWER_STORE_NAME})
+    private changeId!: any;
+    @Mutation('increaseProgress', {namespace: VIEWER_STORE_NAME})
+    private increaseProgress!: any;
+    @Action('getDetail', {namespace: VIEWER_STORE_NAME})
+    private load!: any;
+    @Action('trackSessionView', {namespace: VIEWER_STORE_NAME})
+    private trackView!: any;
+    @Action('loadRecommendation', {namespace: VIEWER_STORE_NAME})
+    private recommend!: any;
     private scrollTimeout: any = null;
     private trackViewInterval: any = null;
     private concatImage: any = concatImage;
@@ -51,6 +71,9 @@
         clearTimeout(this.scrollTimeout);
         this.scrollTimeout = setTimeout(() => {
           this.increaseProgress();
+          if (this.shouldLoadRecommendation) {
+            this.recommend();
+          }
           clearTimeout(this.scrollTimeout);
           this.scrollTimeout = null;
         }, SCROLL_TIMEOUT);
