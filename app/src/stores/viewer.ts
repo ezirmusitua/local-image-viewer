@@ -26,7 +26,7 @@ const getters = {
     return s.gallery.fileCount;
   },
   progressPercentage(s: ViewerState) {
-    return s.progress / s.gallery.fileCount
+    return `${((s.progress * VIEWER_ROUND_FILE_COUNT) / s.gallery.fileCount) * 100}%`
   },
 };
 

@@ -3,6 +3,7 @@
 
 <template lang="pug">
   div#scroll-target(style="height: 100vh; overflow-y: scroll")
+    VerticalProgress(:progress-percentage="progressPercentage")
     v-layout(
     column
     v-scroll:#scroll-target="onScroll"
@@ -19,14 +20,17 @@
   import { State, Getter, Mutation, Action } from 'vuex-class';
   import { VIEWER_STORE_NAME } from '@/stores/viewer';
   import { concatImage } from '@/resources/gallery';
+  import VerticalProgress from '@/components/VerticalProgress.vue';
 
-  const SCROLL_THREHOLD = 1500;
+  const SCROLL_THRESHOLD = 1500;
   const SCROLL_TIMEOUT = 300;
-
-  @Component
+  @Component({
+    components: {VerticalProgress},
+  })
   export default class Viewer extends Vue {
     @State('gallery', {namespace: VIEWER_STORE_NAME}) private gallery!: object;
     @State('progress', {namespace: VIEWER_STORE_NAME}) private progress!: number;
+    @Getter('progressPercentage', {namespace: VIEWER_STORE_NAME}) private progressPercentage!: string;
     @Getter('images', {namespace: VIEWER_STORE_NAME}) private images!: string[];
     @Mutation('changeGalleryId', {namespace: VIEWER_STORE_NAME}) private changeId!: any;
     @Mutation('increaseProgress', {namespace: VIEWER_STORE_NAME}) private increaseProgress!: any;
@@ -41,11 +45,9 @@
 
     private onScroll(e: any) {
       const {scrollHeight, scrollTop} = e.target;
-      if (scrollHeight - scrollTop < SCROLL_THREHOLD) {
+      if (scrollHeight - scrollTop < SCROLL_THRESHOLD) {
         clearTimeout(this.scrollTimeout);
         this.scrollTimeout = setTimeout(() => {
-          console.log(e);
-          console.log('bottom reached')
           this.increaseProgress();
           clearTimeout(this.scrollTimeout);
           this.scrollTimeout = null;
