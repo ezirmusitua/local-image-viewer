@@ -1,4 +1,4 @@
-import { Controller, Headers, Param, Post } from '@nestjs/common';
+import { Controller, Headers, HttpException, HttpStatus, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
 import { SessionService } from './session.service';
 
 const SESSION_PATH = 'session';
@@ -9,7 +9,16 @@ export class SessionController {
   }
 
   @Post()
-  start(@Headers('Authorization') token: string): { token: string } {
+  start(@Headers('authorization') token: string): { token: string } {
     return this.sessionService.startNew(token);
+  }
+
+  @Post('/view/gallery/:galleryId')
+  viewGallery(
+    @Headers('authorization') token: string,
+    @Param('galleryId', ParseIntPipe) galleryId: number,
+    @Query('lasting', ParseIntPipe) lasting: number,
+  ): void {
+    this.sessionService.viewGallery(token, galleryId, lasting);
   }
 }
