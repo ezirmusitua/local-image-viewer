@@ -2,8 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 
 describe('AppController', () => {
-  let app: TestingModule;
-
+  const app: TestingModule = null;
 
   describe('root', () => {
     it('should return "Hello World!"', () => {

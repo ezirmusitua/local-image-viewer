@@ -22,6 +22,7 @@
   "dependencies": {
     "@nestjs/common": "^5.1.0",
     "@nestjs/core": "^5.1.0",
+    "@nestjs/jwt": "^0.2.1",
     "@nestjs/typeorm": "^5.2.2",
     "@types/lokijs": "^1.5.2",
     "cache-manager": "^2.9.0",
