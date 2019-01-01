@@ -5,12 +5,19 @@ import axios from 'axios'
 
 
 export class Resource {
+  public static headers: object = {};
+
+  public static setAuthorizationToken(token: string) {
+    Resource.headers = {Authorization: `Bearer ${token}`};
+  }
+
   public endpoint: string;
   public baseURL: string;
   public router: Router;
   public requester: AxiosInstance;
 
   constructor(endpoint: string, routeObjects: RouteObject[]) {
+    console.log('endpoint ', endpoint, ' routes: ', [...routeObjects])
     this.endpoint = endpoint;
     this.baseURL = `${Config.backend}/${endpoint}`
     this.router = new Router();
@@ -41,7 +48,13 @@ export class Resource {
       throw Error(`Invalid body: ${JSON.stringify(bval, null, 2)}`)
     }
     try {
-      const {data: resData} = await this.requester.request({...route, url, params: nParams, data});
+      const {data: resData} = await this.requester.request({
+        headers: Resource.headers,
+        ...route, // route defined headers would overwrite Resource defined headers
+        url,
+        params: nParams,
+        data,
+      });
       return resData;
     } catch (err) {
       // console.error('Request error: ', err)
