@@ -1,6 +1,7 @@
 import { GalleryAPIs, GalleryResource } from '@/resources/gallery'
 
 export const VIEWER_STORE_NAME = 'viewer';
+export const VIEWER_ROUND_FILE_COUNT = 9;
 
 interface ViewerState {
   galleryId: number | null,
@@ -11,15 +12,21 @@ interface ViewerState {
 const state: ViewerState = {
   galleryId: null,
   gallery: {},
-  progress: 0,
+  progress: 1,
 };
 
 const getters = {
   images(s: ViewerState) {
-    return s.gallery.files;
+    if (!s.gallery.files) {
+      return [];
+    }
+    return s.gallery.files.slice(0, s.progress * VIEWER_ROUND_FILE_COUNT);
   },
   fileCount(s: ViewerState) {
     return s.gallery.fileCount;
+  },
+  progressPercentage(s: ViewerState) {
+    return s.progress / s.gallery.fileCount
   },
 };
 
@@ -29,6 +36,9 @@ const mutations = {
   },
   changeGalleryId(s: ViewerState, id: number) {
     s.galleryId = id;
+  },
+  increaseProgress(s: ViewerState) {
+    s.progress += 1;
   },
 };
 

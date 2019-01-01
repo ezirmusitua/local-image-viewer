@@ -1,6 +1,6 @@
 <style scoped lang="scss">
   .gallery-list {
-    max-width: 1280px;
+    max-width: 1279px;
 
     .card {
       margin-bottom: 20px;
@@ -15,7 +15,8 @@
       v-for="(g, idx) in galleries"
       :key="idx"
       )
-        GalleryCard.card(:gallery="g")
+        v-layout(justify-center align-center)
+          GalleryCard.card(:gallery="g")
 
 </template>
 

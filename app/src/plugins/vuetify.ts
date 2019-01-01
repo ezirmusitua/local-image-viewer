@@ -1,8 +1,11 @@
 import Vue from 'vue'
-import Vuetify from 'vuetify/lib'
+import Vuetify, { directives } from 'vuetify/lib'
 import 'vuetify/src/stylus/app.styl'
 
 Vue.use(Vuetify, {
+  directives: {
+    Scroll: directives.Scroll,
+  },
   theme: {
     primary: '#1A1A1A',
     secondary: '#170E0E',

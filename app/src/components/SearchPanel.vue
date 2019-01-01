@@ -6,7 +6,6 @@
 
   .search-panel {
     height: 320px;
-    width: 1280px;
 
     .container {
       height: 100%;
@@ -28,7 +27,7 @@
 </style>
 
 <template lang="pug">
-  v-container.search-panel
+  div.search-panel.px-2.py-4
     v-layout.container(align-center justify-center)
       v-flex(lg8 md10 sm10 xs12)
         h4.display-1 View Images In Your Computer
@@ -41,11 +40,8 @@
             height="48"
             placeholder="search gallery name"
             )
-            v-layout.actions(justify-space-around)
-              v-flex(lg4)
-                v-btn.button(color="info") Search Now
-              v-flex(lg4)
-                v-btn.button(color="info") Random
+            v-flex(lg4)
+              v-btn.button(color="info") Random
 </template>
 
 <script lang="ts">
