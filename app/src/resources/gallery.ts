@@ -9,6 +9,7 @@ export const GalleryAPIs = {
   RANDOM: 'listRandomGallery',
   DETAIL: 'getGalleryDetail',
   IMAGE: 'getGalleryImage',
+  RECOMMEND: 'recommendGallery',
 }
 const Routes: RouteObject[] = [{
   method: METHODS.GET,
@@ -30,6 +31,12 @@ const Routes: RouteObject[] = [{
   method: METHODS.GET,
   name: GalleryAPIs.DETAIL,
   path: '/:id',
+  paramsSchema: {},
+  dataSchema: {},
+}, {
+  method: METHODS.GET,
+  name: GalleryAPIs.RECOMMEND,
+  path: '/recommend',
   paramsSchema: {},
   dataSchema: {},
 }];
