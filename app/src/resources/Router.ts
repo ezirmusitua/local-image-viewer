@@ -36,7 +36,7 @@ export class Router {
                  dataSchema,
                }: RouteObject) {
     this.routes[name] = {
-      method: METHODS.GET,
+      method,
       url: path,
       paramsValidator: (params: object) => {
         const schema = joi.object().keys(paramsSchema);

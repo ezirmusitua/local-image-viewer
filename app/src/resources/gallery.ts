@@ -5,10 +5,10 @@ import { Config } from '@/Config'
 
 const EndPoint = 'gallery';
 export const GalleryAPIs = {
-  LIST: 'list',
-  RANDOM: 'random',
-  DETAIL: 'detail',
-  IMAGE: 'image',
+  LIST: 'listGallery',
+  RANDOM: 'listRandomGallery',
+  DETAIL: 'getGalleryDetail',
+  IMAGE: 'getGalleryImage',
 }
 const Routes: RouteObject[] = [{
   method: METHODS.GET,
