@@ -1,9 +1,10 @@
-import {Module} from '@nestjs/common';
-import {SessionService} from './session.service';
-import {SessionController} from './session.controller';
+import { Module } from '@nestjs/common';
+import { SessionService } from './session.service';
+import { SessionController } from './session.controller';
+import { AuthModule } from '../auth/auth.module'
 
 @Module({
-  imports: [],
+  imports: [AuthModule],
   providers: [SessionService],
   controllers: [SessionController],
 })

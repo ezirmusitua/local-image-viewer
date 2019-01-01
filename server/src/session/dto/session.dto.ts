@@ -1,4 +1,4 @@
-import {IsString, IsNumber, IsDate, IsArray} from 'class-validator';
+import { IsString, IsNumber, IsDate, IsArray } from 'class-validator';
 
 export class SessionBrowseHistory {
   @IsString()
@@ -14,9 +14,6 @@ export class SessionBrowseHistory {
 export class Session {
   @IsDate()
   activeAt: Date;
-
-  @IsString()
-  firstViewGalleryId: string;
 
   @IsArray()
   galleryBrowseHistory: SessionBrowseHistory[];
