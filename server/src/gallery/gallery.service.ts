@@ -1,8 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Gallery } from './dto/gallery.dto';
 import { database } from '../common/database';
+import { AuthService } from '../auth/auth.service'
+import { Session } from '../session/dto/session.dto'
 
 const REPO = process.env.REPO;
 const RANDOM_COUNT = 9;
@@ -14,6 +16,11 @@ function isImage(filename) {
 
 @Injectable()
 export class GalleryService {
+  constructor(
+    private readonly authService: AuthService,
+  ) {
+  }
+
   async upsertRepo(): Promise<void> {
     const galleryCollection = database.getCollection('gallery');
     const galleryPaths = fs.readdirSync(REPO)
@@ -62,7 +69,7 @@ export class GalleryService {
     }
   }
 
-  async list(query, pageIndex, pageSize): Promise<{ galleries: Gallery[], count: number }> {
+  list(query, pageIndex, pageSize): { galleries: Gallery[], count: number } {
     const galleryCollection = database.getCollection('gallery');
     const count = galleryCollection.count(query);
     const galleries = galleryCollection
@@ -74,6 +81,57 @@ export class GalleryService {
       .data()
       .map(g => ({...g, id: g.$loki}));
     return {galleries, count};
+  }
+
+  recommend(token: string): { galleries: Gallery[], count: number } {
+    if (!this.authService.verify(token)) {
+      throw new HttpException(
+        'Invalid Session',
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+    const sessionId = parseInt(this.authService.decode(token) as string, 10);
+    const sessionCollection = database.getCollection('session');
+    const curSession = sessionCollection.findOne({$loki: sessionId}) as Session;
+    if (!curSession) {
+      throw new HttpException(
+        'Session not found',
+        HttpStatus.NOT_FOUND,
+      )
+    }
+    const curSessionGalleryScoreNameMap = curSession
+      .galleryBrowseHistory
+      .reduce((res, g) => {
+        res[g.name] = g.score;
+        return res;
+      }, {});
+    const otherSessions = sessionCollection.find({
+      $loki: {$ne: sessionId},
+    }) as Session[];
+    const similarSessions = otherSessions.map((session) => {
+      let similarity = 0;
+      const history = session.galleryBrowseHistory.sort((p, n) => n.score - p.score);
+      history.forEach((g) => {
+        similarity += g.score / curSessionGalleryScoreNameMap[g.name] || 0;
+      });
+      return {...session, similarity, galleryBrowseHistory: history};
+    }).sort((p, n) => n.similarity - p.similarity);
+    const [galleriesNames, added] = [[], new Set([])];
+    similarSessions.forEach((session) => {
+      session.galleryBrowseHistory.forEach((history) => {
+        if (!curSessionGalleryScoreNameMap[history.name] && !added.has(history.name)) {
+          galleriesNames.push(history.name);
+          added.add(history.name);
+        }
+      });
+    })
+    const galleries = database.getCollection('gallery')
+      .chain()
+      .find({name: {$in: galleriesNames}})
+      .limit(5)
+      .data()
+      .map(g => ({name: g.name, thumbnail: g.thumbnail, fileCount: g.fileCount}));
+    return {galleries, count: galleries.length} as any;
   }
 
   thumbnail(id: number): { content: Buffer, type: string } {

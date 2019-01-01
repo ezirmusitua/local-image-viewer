@@ -12,6 +12,9 @@ export class SessionBrowseHistory {
 }
 
 export class Session {
+  @IsNumber()
+  $loki;
+
   @IsDate()
   activeAt: Date;
 

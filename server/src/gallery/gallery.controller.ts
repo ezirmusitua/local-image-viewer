@@ -1,8 +1,10 @@
 import {
   Controller,
   Get,
+  Headers,
   HttpException,
-  HttpStatus, Param,
+  HttpStatus,
+  Param,
   ParseIntPipe,
   Post,
   Query,
@@ -15,7 +17,9 @@ const GALLERY_PATH = 'gallery';
 
 @Controller(GALLERY_PATH)
 export class GalleryController {
-  constructor(private readonly galleryService: GalleryService) {
+  constructor(
+    private readonly galleryService: GalleryService,
+  ) {
   }
 
   @Post('/upsert-repo')
@@ -54,6 +58,13 @@ export class GalleryController {
     }
   }
 
+  @Get('/recommend')
+  recommend(
+    @Headers('authorization') token: string,
+  ) {
+    return this.galleryService.recommend(token);
+  }
+
   @Get('/:id')
   detail(@Param('id', ParseIntPipe) id: number) {
     try {
@@ -70,7 +81,7 @@ export class GalleryController {
     @Query('name') name: string,
     @Query('pageIndex', ParseIntPipe) pageIndex: number = 1,
     @Query('pageSize', ParseIntPipe) pageSize: number = 9,
-  ): Promise<{ galleries: Gallery[], count: number }> {
+  ): { galleries: Gallery[], count: number } {
     let query = {} as any;
     if (name) {
       query.name = {$regex: name};

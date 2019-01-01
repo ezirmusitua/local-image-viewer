@@ -69,6 +69,5 @@ export class SessionService {
       session.galleryBrowseHistory[idx] = history;
     }
     sessionCollection.update(session);
-    console.log(session);
   }
 }
