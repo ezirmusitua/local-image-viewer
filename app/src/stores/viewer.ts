@@ -1,4 +1,5 @@
 import { GalleryAPIs, GalleryResource } from '@/resources/gallery'
+import { SessionAPIs, SessionResource } from '@/resources/session'
 
 export const VIEWER_STORE_NAME = 'viewer';
 export const VIEWER_ROUND_FILE_COUNT = 9;
@@ -49,7 +50,13 @@ const actions = {
       {id: galleryId});
     commit('changeGallery', gallery);
   },
-};
+  async trackSessionView({state: s}: { state: ViewerState }) {
+    await SessionResource.request(SessionAPIs.VIEW_GALLERY, {
+      galleryId: s.galleryId,
+      lasting: 30 * 1000,
+    });
+  },
+}
 
 const store = {namespaced: true, state, getters, mutations, actions};
 

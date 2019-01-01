@@ -35,7 +35,9 @@
     @Mutation('changeGalleryId', {namespace: VIEWER_STORE_NAME}) private changeId!: any;
     @Mutation('increaseProgress', {namespace: VIEWER_STORE_NAME}) private increaseProgress!: any;
     @Action('getDetail', {namespace: VIEWER_STORE_NAME}) private load!: any;
+    @Action('trackSessionView', {namespace: VIEWER_STORE_NAME}) private trackView!: any;
     private scrollTimeout: any = null;
+    private trackViewInterval: any = null;
     private concatImage: any = concatImage;
 
     get galleryId() {
@@ -55,14 +57,21 @@
       }
     }
 
+    private autoTrackView() {
+      this.trackViewInterval = setInterval(this.trackView, 30 * 1000);
+    }
+
     private mounted() {
       this.changeId(this.galleryId);
       this.load();
+      this.autoTrackView();
     }
 
     private beforeDestroy() {
       clearTimeout(this.scrollTimeout);
       this.scrollTimeout = null;
+      clearInterval(this.trackViewInterval);
+      this.trackViewInterval = null;
     }
   }
 </script>

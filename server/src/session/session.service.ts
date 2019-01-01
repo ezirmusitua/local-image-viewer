@@ -60,7 +60,7 @@ export class SessionService {
         name: gallery.name,
         fileCount: gallery.fileCount,
         lasting,
-        score: 1 / gallery.fileCount,
+        score: lasting / gallery.fileCount,
       });
     } else {
       const history = session.galleryBrowseHistory[idx];
