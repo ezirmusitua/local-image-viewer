@@ -1,4 +1,5 @@
 import { GalleryAPIs, GalleryResource } from '@/resources/gallery'
+import { SessionUtil } from '@/utils/session'
 
 export const HOME_STORE_NAME = 'home';
 export const HOME_FILTER_PAGE_SIZE = 9;
@@ -51,6 +52,11 @@ const actions = {
     const {galleries, count} = await GalleryResource.request(GalleryAPIs.LIST, filter);
     commit('changeGalleries', galleries);
     commit('changeGalleryCount', count);
+  },
+  async checkAndCreateSession() {
+    if (!SessionUtil.sessionStarted) {
+      await SessionUtil.startSession();
+    }
   },
 };
 

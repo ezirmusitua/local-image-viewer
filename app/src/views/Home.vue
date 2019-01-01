@@ -30,6 +30,7 @@
     @State('galleries', {namespace: HOME_STORE_NAME}) public galleries!: object[];
     @Getter('pageCount', {namespace: HOME_STORE_NAME}) public pageCount!: number;
     @Action('listGallery', {namespace: HOME_STORE_NAME}) public listGallery!: any;
+    @Action('checkAndCreateSession', {namespace: HOME_STORE_NAME}) public checkAndCreateSession!: any;
 
     @Watch('filter', {immediate: true, deep: true})
     private onFilterChange() {
@@ -37,6 +38,7 @@
     }
 
     private mounted() {
+      this.checkAndCreateSession();
       this.listGallery();
     }
   }
