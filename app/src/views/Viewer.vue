@@ -14,10 +14,8 @@
       :src="concatImage(galleryId, i)"
       )
     v-divider.mt-4.mb-4
-    v-layout(align-center justify-space-around wrap)
-      v-flex(lg2 md4 sm12 xs12 v-for="(g, idx) in galleriesRecommendation" :key="idx")
-        v-layout.mb-3(align-center justify-center)
-          GalleryCard(:gallery="g")
+    GalleriesRecommendation
+
 </template>
 
 <script lang="ts">
@@ -27,19 +25,22 @@
   import { concatImage } from '@/resources/gallery';
   import VerticalProgress from '@/components/VerticalProgress.vue';
   import GalleryCard from '@/components/GalleryCard.vue';
+  import GalleriesRecommendation from '@/components/GalleriesRecommendation.vue';
 
   const SCROLL_THRESHOLD = 1500;
   const SCROLL_TIMEOUT = 300;
   @Component({
-    components: {GalleryCard, VerticalProgress},
+    components: {
+      GalleriesRecommendation,
+      GalleryCard,
+      VerticalProgress,
+    },
   })
   export default class Viewer extends Vue {
     @State('gallery', {namespace: VIEWER_STORE_NAME})
     private gallery!: object;
     @State('progress', {namespace: VIEWER_STORE_NAME})
     private progress!: number;
-    @State('galleriesRecommendation', {namespace: VIEWER_STORE_NAME})
-    private galleriesRecommendation!: object[];
     @Getter('progressPercentage', {namespace: VIEWER_STORE_NAME})
     private progressPercentage!: string;
     @Getter('images', {namespace: VIEWER_STORE_NAME})
