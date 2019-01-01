@@ -11,13 +11,15 @@ export class AuthService {
   }
 
   public verify(token: string) {
-    if (token.startsWith('Bearer ')) {
+    if (!token) return false;
+    if (token && token.startsWith('Bearer ')) {
       return this.jwtService.verify(token.slice(7))
     }
     return this.jwtService.verify(token);
   }
 
   public decode(token: string) {
+    if (!token) throw Error('Missing JWT token')
     if (token.startsWith('Bearer ')) {
       return this.jwtService.decode(token.slice(7))
     }
