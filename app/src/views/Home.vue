@@ -1,3 +1,8 @@
+<style lang="scss">
+  .home {
+    overflow-y: auto;
+  }
+</style>
 <template lang="pug">
   div.home
     SearchPanel

@@ -1,5 +1,6 @@
 import { GalleryAPIs, GalleryResource } from '@/resources/gallery'
 import { SessionAPIs, SessionResource } from '@/resources/session'
+import { SessionUtil } from '@/utils/session'
 
 export const VIEWER_STORE_NAME = 'viewer';
 export const VIEWER_ROUND_FILE_COUNT = 9;
@@ -7,6 +8,7 @@ export const VIEWER_ROUND_FILE_COUNT = 9;
 interface ViewerState {
   galleryId: number | null,
   gallery: any,
+  displayedImages: string[],
   progress: number,
   galleriesRecommendation: object[];
 }
@@ -14,16 +16,14 @@ interface ViewerState {
 const state: ViewerState = {
   galleryId: null,
   gallery: {},
-  progress: 1,
+  displayedImages: [],
+  progress: 0,
   galleriesRecommendation: [],
 };
 
 const getters = {
   images(s: ViewerState) {
-    if (!s.gallery.files) {
-      return [];
-    }
-    return s.gallery.files.slice(0, s.progress * VIEWER_ROUND_FILE_COUNT);
+    return s.displayedImages
   },
   fileCount(s: ViewerState) {
     return s.gallery.fileCount;
@@ -46,8 +46,11 @@ const mutations = {
   changeRecommendGalleries(s: ViewerState, galleries: object[]) {
     s.galleriesRecommendation = galleries;
   },
-  increaseProgress(s: ViewerState) {
-    s.progress += 1;
+  changeProgress(s: ViewerState, progress: number) {
+    s.progress = progress;
+  },
+  changeDisplayedImages(s: ViewerState, newImages: string[]) {
+    s.displayedImages = newImages;
   },
 };
 
@@ -56,9 +59,54 @@ const actions = {
     const {galleryId} = s;
     const {gallery} = await GalleryResource.request(GalleryAPIs.DETAIL,
       {id: galleryId});
+    commit('changeRecommendGalleries', [])
     commit('changeGallery', gallery);
+    commit('changeProgress', 1);
+    commit('changeDisplayedImages', gallery.files.slice(0, VIEWER_ROUND_FILE_COUNT));
+  },
+  increaseProgress({commit, state: s}: { commit: any, state: ViewerState }) {
+    const {gallery, progress} = s;
+    if (progress >= gallery.fileCount / VIEWER_ROUND_FILE_COUNT) return;
+    const newProgress = progress + 1;
+    commit('changeProgress', newProgress);
+    commit('changeDisplayedImages',
+      gallery.files.slice(0, newProgress * VIEWER_ROUND_FILE_COUNT),
+    );
+  },
+  skipToImages({commit, state: s}: { commit: any, state: ViewerState }, position: string) {
+    const {progress, displayedImages, gallery: {fileCount, files}} = s;
+    let newProgress = progress;
+    let newDisplayedImages = [...displayedImages];
+    const middleProgress = Math.ceil(fileCount / VIEWER_ROUND_FILE_COUNT / 2);
+    const bottomProgress = Math.ceil(fileCount / VIEWER_ROUND_FILE_COUNT);
+    switch (position) {
+      case 'bottom':
+        if (progress >= bottomProgress) {
+          return;
+        }
+        newProgress = bottomProgress;
+        newDisplayedImages = displayedImages
+          .concat(files.slice((bottomProgress - 1) * VIEWER_ROUND_FILE_COUNT, fileCount));
+        break;
+      case 'middle':
+        if (progress >= middleProgress) {
+          return;
+        }
+        newProgress = middleProgress;
+        newDisplayedImages = displayedImages
+          .concat(files.slice((middleProgress - 1) * VIEWER_ROUND_FILE_COUNT, middleProgress));
+        break;
+      case 'top':
+      default:
+        return;
+    }
+    commit('changeProgress', newProgress);
+    commit('changeDisplayedImages', newDisplayedImages);
   },
   async trackSessionView({state: s}: { state: ViewerState }) {
+    if (!SessionUtil.sessionStarted) {
+      await SessionUtil.startSession();
+    }
     await SessionResource.request(SessionAPIs.VIEW_GALLERY, {
       galleryId: s.galleryId,
       lasting: 30 * 1000,

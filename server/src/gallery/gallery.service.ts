@@ -128,9 +128,14 @@ export class GalleryService {
     const galleries = database.getCollection('gallery')
       .chain()
       .find({name: {$in: galleriesNames}})
-      .limit(6)
+      .limit(5)
       .data()
-      .map(g => ({name: g.name, thumbnail: g.thumbnail, fileCount: g.fileCount}));
+      .map(g => ({
+        id: g.$loki,
+        name: g.name,
+        thumbnail: g.thumbnail,
+        fileCount: g.fileCount,
+      }));
     return {galleries, count: galleries.length} as any;
   }
 

@@ -2,7 +2,7 @@
 </style>
 
 <template lang="pug">
-  v-layout(align-center justify-space-around wrap)
+  v-layout(justify-space-around wrap)
     v-flex(
     lg2
     md4
@@ -12,7 +12,8 @@
     :key="idx"
     )
       v-layout.mb-3(align-center justify-center)
-        GalleryCard(:gallery="g")
+        router-link(:to="`/gallery/${g.id}`")
+          GalleryCard(:gallery="g")
 
 </template>
 
@@ -30,9 +31,5 @@
   export default class GalleriesRecommendation extends Vue {
     @State('galleriesRecommendation', {namespace: VIEWER_STORE_NAME})
     private galleriesRecommendation!: object[];
-
-    mounted() {
-      console.log(this.galleriesRecommendation)
-    }
   }
 </script>

@@ -2,7 +2,7 @@
 </style>
 
 <template lang="pug">
-  div#scroll-target(style="height: 100vh; overflow-y: scroll")
+  div#scroll-target(style="height: 100vh; overflow-y: scroll" ref="scrollTarget")
     VerticalProgress(:progress-percentage="progressPercentage")
     v-layout(
     column
@@ -15,6 +15,7 @@
       )
     v-divider.mt-4.mb-4
     GalleriesRecommendation
+    ViewFAB(:scrollTo="scrollTo")
 
 </template>
 
@@ -26,11 +27,13 @@
   import VerticalProgress from '@/components/VerticalProgress.vue';
   import GalleryCard from '@/components/GalleryCard.vue';
   import GalleriesRecommendation from '@/components/GalleriesRecommendation.vue';
+  import ViewFAB from '@/components/ViewFAB.vue';
 
   const SCROLL_THRESHOLD = 1500;
   const SCROLL_TIMEOUT = 300;
   @Component({
     components: {
+      ViewFAB,
       GalleriesRecommendation,
       GalleryCard,
       VerticalProgress,
@@ -44,12 +47,14 @@
     @Getter('progressPercentage', {namespace: VIEWER_STORE_NAME})
     private progressPercentage!: string;
     @Getter('images', {namespace: VIEWER_STORE_NAME})
-    private images!: string[];
+    private readonly images!: string[];
+    @Getter('fileCount', {namespace: VIEWER_STORE_NAME})
+    private readonly imageCount!: number;
     @Getter('shouldLoadRecommendation', {namespace: VIEWER_STORE_NAME})
     private shouldLoadRecommendation!: boolean;
     @Mutation('changeGalleryId', {namespace: VIEWER_STORE_NAME})
     private changeId!: any;
-    @Mutation('increaseProgress', {namespace: VIEWER_STORE_NAME})
+    @Action('increaseProgress', {namespace: VIEWER_STORE_NAME})
     private increaseProgress!: any;
     @Action('getDetail', {namespace: VIEWER_STORE_NAME})
     private load!: any;
@@ -57,6 +62,8 @@
     private trackView!: any;
     @Action('loadRecommendation', {namespace: VIEWER_STORE_NAME})
     private recommend!: any;
+    @Action('skipToImages', {namespace: VIEWER_STORE_NAME})
+    private skipToImages!: any;
     private scrollTimeout: any = null;
     private trackViewInterval: any = null;
     private concatImage: any = concatImage;
@@ -79,6 +86,28 @@
           this.scrollTimeout = null;
         }, SCROLL_TIMEOUT);
       }
+    }
+
+    private scrollTo(position: string) {
+      const scrollTarget = this.$refs.scrollTarget as any;
+      this.skipToImages(position);
+      let waitImageTimeout: any = setTimeout(() => {
+        switch (position) {
+          case 'bottom':
+            scrollTarget.scrollTop = scrollTarget.scrollHeight;
+            this.recommend();
+            break;
+          case 'middle':
+            scrollTarget.scrollTop = scrollTarget.scrollHeight / 2;
+            break;
+          case 'top':
+          default:
+            scrollTarget.scrollTop = 0;
+            break;
+        }
+        clearTimeout(waitImageTimeout);
+        waitImageTimeout = null;
+      }, 1500);
     }
 
     private autoTrackView() {

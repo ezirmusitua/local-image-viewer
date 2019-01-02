@@ -1,4 +1,8 @@
 <style lang="scss">
+  html {
+    overflow-y: auto;
+  }
+
   .container {
     padding: 0;
 
@@ -12,6 +16,7 @@
   v-app
     //v-toolbar(app)
     v-container.container(fluid)
-      router-view
+      keep-alive
+        router-view(:key="$route.fullPath")
     //v-footer(app)
 </template>
