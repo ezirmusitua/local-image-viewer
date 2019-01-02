@@ -21,7 +21,6 @@ export class SessionService {
       galleryBrowseHistory: [],
     };
     const {$loki} = sessionCollection.insert(newSession);
-    console.log(newSession);
     return {token: this.authService.sign($loki)};
   }
 
@@ -45,7 +44,6 @@ export class SessionService {
     }
     const galleryCollection = database.getCollection('gallery')
     const gallery = galleryCollection.findOne({$loki: galleryId});
-    console.log(typeof galleryId, galleryCollection.find())
     if (!gallery) {
       throw new HttpException(
         'Gallery not found',

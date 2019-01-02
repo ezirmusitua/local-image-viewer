@@ -17,7 +17,6 @@ export class Resource {
   public requester: AxiosInstance;
 
   constructor(endpoint: string, routeObjects: RouteObject[]) {
-    console.log('endpoint ', endpoint, ' routes: ', [...routeObjects])
     this.endpoint = endpoint;
     this.baseURL = `${Config.backend}/${endpoint}`
     this.router = new Router();
