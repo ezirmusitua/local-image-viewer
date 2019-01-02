@@ -1,7 +1,13 @@
 {
-  "name": "app",
+  "name": "simple-image-viewer",
+  "description": "a simple image viewer implemented by vue",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
+  "license": "MIT",
+  "author": "jferroal@gmail.com",
+  "maintainers": [
+    "jferroal@gmail.com"
+  ],
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",

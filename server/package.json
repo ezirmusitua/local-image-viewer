@@ -1,8 +1,12 @@
 {
-  "name": "server",
+  "name": "simple-image-server",
   "version": "0.1.0",
-  "description": "description",
+  "description": "a simple image server implemented by nestjs & fastify",
   "author": "jferroal@gmail.com",
+  "maintainers": [
+    "jferroal@gmail.com"
+  ],
+  "private": false,
   "license": "MIT",
   "scripts": {
     "format": "prettier --write \"src/**/*.ts\"",

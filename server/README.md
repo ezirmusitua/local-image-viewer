@@ -35,20 +35,20 @@ $ npm install
 ```
 
 ## Running the app
-
+YOU SHOULD APPEND THE GALLERY REPO AS ENV
 ```bash
 # development
-$ npm run start
+$ env REPO="path/to/gallery/repo" npm run start
 
 # watch mode
-$ npm run start:dev
+$ env REPO="path/to/gallery/repo" npm run start:dev
 
 # incremental rebuild (webpack)
-$ npm run webpack
-$ npm run start:hmr
+$ env REPO="path/to/gallery/repo" npm run webpack
+$ env REPO="path/to/gallery/repo" npm run start:hmr
 
 # production mode
-$ npm run start:prod
+$ env REPO="path/to/gallery/repo" npm run start:prod
 ```
 
 ## Test
