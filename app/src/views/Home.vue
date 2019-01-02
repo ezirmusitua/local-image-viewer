@@ -7,9 +7,15 @@
   div.home
     SearchPanel
     v-divider
+    v-layout.mb-4.mt-4(justify-center)
+      v-pagination(
+      v-model="filter.pageIndex"
+      :length="pageCount"
+      :limit="9"
+      )
     GalleryList.mt-3(:items="galleries" :name="filter.name")
     v-divider
-    v-layout.mt-4(justify-center)
+    v-layout.mb-4.mt-4(justify-center)
       v-pagination(
       v-model="filter.pageIndex"
       :length="pageCount"
@@ -23,9 +29,11 @@
   import SearchPanel from '@/components/SearchPanel.vue';
   import GalleryList from '@/components/GalleryList.vue';
   import { HOME_STORE_NAME } from '@/stores/home';
+  import GalleryCard from '@/components/GalleryCard.vue';
 
   @Component({
     components: {
+      GalleryCard,
       GalleryList,
       SearchPanel,
     },

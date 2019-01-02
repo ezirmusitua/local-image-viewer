@@ -7,8 +7,6 @@ Vue.use(Vuetify, {
     Scroll: directives.Scroll,
   },
   theme: {
-    primary: '#1A1A1A',
-    secondary: '#170E0E',
     accent: '#0D6626',
     error: '#DB102D',
     info: '#2196F3',

@@ -40,8 +40,6 @@
             height="48"
             placeholder="search gallery name"
             )
-            v-flex(lg4)
-              v-btn.button(color="info") Random
 </template>
 
 <script lang="ts">

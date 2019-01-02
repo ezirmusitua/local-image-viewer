@@ -1,4 +1,7 @@
 <style lang="scss" scoped>
+  #scroll-target {
+    padding-top: 64px;
+  }
 </style>
 
 <template lang="pug">

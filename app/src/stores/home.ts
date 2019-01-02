@@ -42,7 +42,7 @@ const mutations = {
     s.filter = {...s.filter, pageIndex: index};
   },
   changeFilterName(s: HomeState, name: string) {
-    s.filter = {...s.filter, name}
+    s.filter = {...s.filter, name};
   },
 };
 

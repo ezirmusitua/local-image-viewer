@@ -1,0 +1,30 @@
+@import './color';
+
+h1, h2, h3, h4, h5, b {
+  color: $color-text-grey__primary;
+}
+
+h1, h2 {
+  font-weight: 700;
+}
+
+h3, h4 {
+  font-weight: 600;
+}
+
+h5, b {
+  font-weight: bold;
+}
+
+p, span, input, a {
+  color: $color-text-grey__secondary !important;
+  text-decoration: none;
+}
+
+input::placeholder {
+  color: $color-text-grey__shallow !important;
+}
+
+i {
+  color: #C62828 !important;
+}

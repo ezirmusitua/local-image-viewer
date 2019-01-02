@@ -66,7 +66,9 @@ const actions = {
   },
   increaseProgress({commit, state: s}: { commit: any, state: ViewerState }) {
     const {gallery, progress} = s;
-    if (progress >= gallery.fileCount / VIEWER_ROUND_FILE_COUNT) return;
+    if (progress >= gallery.fileCount / VIEWER_ROUND_FILE_COUNT) {
+      return;
+    }
     const newProgress = progress + 1;
     commit('changeProgress', newProgress);
     commit('changeDisplayedImages',

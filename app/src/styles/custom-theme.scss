@@ -1,0 +1,10 @@
+@import './color';
+
+.theme--dark.v-pagination .v-pagination__item--active {
+  background-color: $color-red__primary !important;
+}
+
+.primary-btn {
+  background-color: $color-red__primary !important;
+  color: $color-text-grey__primary !important;
+}

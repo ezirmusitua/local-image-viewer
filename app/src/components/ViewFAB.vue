@@ -12,14 +12,10 @@
     top
     offset-y
     )
-      v-btn(
-      slot="activator"
-      fab
-      color="primary"
-      )
+      v-btn.primary-btn(slot="activator" fab)
         // TODO: try fix vuetify icon
         v-layout(align-center justify-center)
-          span.display-1 ≡
+          span.title ≡
       v-list
         v-list-tile(@click="() => scrollTo('top')")
           v-list-tile-title Scroll to top

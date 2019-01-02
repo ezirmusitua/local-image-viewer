@@ -1,14 +1,16 @@
 <style lang="scss" scoped>
+  @import '../styles/color';
+
   .progress-container {
     z-index: 1;
     position: fixed;
     height: 100%;
-    width: 8px;
-    background-color: aliceblue;
+    width: 6px;
+    background-color: transparent;
 
     .progress__inner {
       border-radius: inherit;
-      background-color: salmon;
+      background-color: $color-green__primary;
       width: inherit;
     }
   }
