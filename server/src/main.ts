@@ -1,9 +1,9 @@
 import * as compression from 'compression';
 // import * as csurf from 'csurf';
 import * as helmet from 'helmet';
-import {NestFactory, FastifyAdapter} from '@nestjs/core';
-import {ValidationPipe} from '@nestjs/common';
-import {AppModule} from './app.module';
+import { NestFactory, FastifyAdapter } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { AppModule } from './app.module';
 import './common/database';
 
 async function bootstrap() {
@@ -12,7 +12,7 @@ async function bootstrap() {
   app.use(compression());
   // app.use(csurf());
   app.use(helmet());
-  await app.listen(3000);
+  await app.listen(3001, '0.0.0.0');
 }
 
 bootstrap();

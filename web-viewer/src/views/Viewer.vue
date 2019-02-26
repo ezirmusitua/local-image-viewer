@@ -12,6 +12,8 @@
     v-scroll:#scroll-target="onScroll"
     )
       v-img(
+      :height="'100vh'"
+      :contain="true"
       v-for="(i, idx) in images"
       :key="idx"
       :src="concatImage(galleryId, i)"

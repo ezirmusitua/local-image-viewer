@@ -13,7 +13,7 @@ const EnvMaps = {
 const ENV: string = EnvMaps[envAlias];
 
 const Backends = {
-  [EnvEnum.DEV]: 'http://localhost:3000',
+  [EnvEnum.DEV]: 'http://192.168.31.5:3001',
   [EnvEnum.PROD]: 'http://localhost:3000',
 };
 
