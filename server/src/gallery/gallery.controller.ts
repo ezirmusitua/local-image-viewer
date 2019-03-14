@@ -1,5 +1,5 @@
 import {
-  Controller,
+  Controller, Delete,
   Get,
   Headers,
   HttpException,
@@ -10,8 +10,8 @@ import {
   Query,
   Response,
 } from '@nestjs/common';
-import { GalleryService } from './gallery.service';
-import { Gallery } from './dto/gallery.dto';
+import {GalleryService} from './gallery.service';
+import {Gallery} from './dto/gallery.dto';
 
 const GALLERY_PATH = 'gallery';
 
@@ -89,5 +89,16 @@ export class GalleryController {
       query = null;
     }
     return this.galleryService.list(query, pageIndex, pageSize);
+  }
+
+  @Delete('/invalid')
+  clearInvalid() {
+    console.debug('Call clear invalid');
+    return this.galleryService.clearInvalid();
+  }
+
+  @Delete('/:id')
+  removeGallery(@Param('id', ParseIntPipe) id: number) {
+    return this.galleryService.removeGallery(id);
   }
 }

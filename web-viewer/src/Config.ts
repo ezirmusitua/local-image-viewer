@@ -2,7 +2,7 @@ const envAlias: string = process.env.NODE_ENV || 'development';
 const EnvEnum = {
   DEV: 'development',
   PROD: 'production',
-}
+};
 const EnvMaps = {
   development: EnvEnum.DEV,
   dev: EnvEnum.DEV,
@@ -13,7 +13,7 @@ const EnvMaps = {
 const ENV: string = EnvMaps[envAlias];
 
 const Backends = {
-  [EnvEnum.DEV]: 'http://192.168.31.5:3001',
+  [EnvEnum.DEV]: `http://192.168.31.5:3000`,
   [EnvEnum.PROD]: 'http://localhost:3000',
 };
 

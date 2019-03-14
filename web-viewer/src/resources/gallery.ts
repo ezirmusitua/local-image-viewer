@@ -1,7 +1,7 @@
-import joi from 'joi'
-import { METHODS, RouteObject } from '@/resources/Router'
-import { Resource } from '@/resources/Resource'
-import { Config } from '@/Config'
+import joi from 'joi';
+import {METHODS, RouteObject} from '@/resources/Router';
+import {Resource} from '@/resources/Resource';
+import {Config} from '@/Config';
 
 const EndPoint = 'gallery';
 export const GalleryAPIs = {
@@ -10,7 +10,8 @@ export const GalleryAPIs = {
   DETAIL: 'getGalleryDetail',
   IMAGE: 'getGalleryImage',
   RECOMMEND: 'recommendGallery',
-}
+  REMOVE_GALLERY: 'removeGallery',
+};
 const Routes: RouteObject[] = [{
   method: METHODS.GET,
   name: GalleryAPIs.LIST,
@@ -39,9 +40,15 @@ const Routes: RouteObject[] = [{
   path: '/recommend',
   paramsSchema: {},
   dataSchema: {},
+}, {
+  method: METHODS.DELETE,
+  name: GalleryAPIs.REMOVE_GALLERY,
+  path: '/:id',
+  paramsSchema: {},
+  dataSchema: {},
 }];
 
-export const GalleryResource = new Resource(EndPoint, Routes)
+export const GalleryResource = new Resource(EndPoint, Routes);
 
 export function concatThumbnail(gallery: { id?: number }) {
   const {id} = gallery;

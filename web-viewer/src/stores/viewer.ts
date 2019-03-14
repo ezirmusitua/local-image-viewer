@@ -1,6 +1,6 @@
-import { GalleryAPIs, GalleryResource } from '@/resources/gallery'
-import { SessionAPIs, SessionResource } from '@/resources/session'
-import { SessionUtil } from '@/utils/session'
+import {GalleryAPIs, GalleryResource} from '@/resources/gallery';
+import {SessionAPIs, SessionResource} from '@/resources/session';
+import {SessionUtil} from '@/utils/session';
 
 export const VIEWER_STORE_NAME = 'viewer';
 export const VIEWER_ROUND_FILE_COUNT = 9;
@@ -23,7 +23,7 @@ const state: ViewerState = {
 
 const getters = {
   images(s: ViewerState) {
-    return s.displayedImages
+    return s.displayedImages;
   },
   fileCount(s: ViewerState) {
     return s.gallery.fileCount;
@@ -32,7 +32,7 @@ const getters = {
     return s.gallery.fileCount - s.progress * VIEWER_ROUND_FILE_COUNT < VIEWER_ROUND_FILE_COUNT;
   },
   progressPercentage(s: ViewerState) {
-    return `${((s.progress * VIEWER_ROUND_FILE_COUNT) / s.gallery.fileCount) * 100}%`
+    return `${((s.progress * VIEWER_ROUND_FILE_COUNT) / s.gallery.fileCount) * 100}%`;
   },
 };
 
@@ -59,7 +59,7 @@ const actions = {
     const {galleryId} = s;
     const {gallery} = await GalleryResource.request(GalleryAPIs.DETAIL,
       {id: galleryId});
-    commit('changeRecommendGalleries', [])
+    commit('changeRecommendGalleries', []);
     commit('changeGallery', gallery);
     commit('changeProgress', 1);
     commit('changeDisplayedImages', gallery.files.slice(0, VIEWER_ROUND_FILE_COUNT));
@@ -118,7 +118,11 @@ const actions = {
     const {galleries} = await GalleryResource.request(GalleryAPIs.RECOMMEND);
     commit('changeRecommendGalleries', galleries);
   },
-}
+  async removeGallery({commit, state: _s}: { commit: any, state: any }) {
+    console.log('call remove');
+    await GalleryResource.request(GalleryAPIs.REMOVE_GALLERY, {id: _s.gallery.$loki});
+  },
+};
 
 const store = {namespaced: true, state, getters, mutations, actions};
 

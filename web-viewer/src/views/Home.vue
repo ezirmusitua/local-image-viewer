@@ -7,7 +7,7 @@
   div.home
     SearchPanel
     v-divider
-    v-layout.mb-4.mt-4(justify-center)
+    v-layout.mb-4.mt-4.md-6(justify-center)
       v-pagination(
       v-model="filter.pageIndex"
       :length="pageCount"

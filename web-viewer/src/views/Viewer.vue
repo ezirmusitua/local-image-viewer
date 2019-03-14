@@ -20,15 +20,15 @@
       )
     v-divider.mt-4.mb-4
     GalleriesRecommendation
-    ViewFAB(:scrollTo="scrollTo")
+    ViewFAB(:scrollTo="scrollTo" :removeGallery="removeGallery")
 
 </template>
 
 <script lang="ts">
-  import { Component, Vue } from 'vue-property-decorator';
-  import { State, Getter, Mutation, Action } from 'vuex-class';
-  import { VIEWER_STORE_NAME } from '@/stores/viewer';
-  import { concatImage } from '@/resources/gallery';
+  import {Component, Vue} from 'vue-property-decorator';
+  import {State, Getter, Mutation, Action} from 'vuex-class';
+  import {VIEWER_STORE_NAME} from '@/stores/viewer';
+  import {concatImage} from '@/resources/gallery';
   import VerticalProgress from '@/components/VerticalProgress.vue';
   import GalleryCard from '@/components/GalleryCard.vue';
   import GalleriesRecommendation from '@/components/GalleriesRecommendation.vue';
@@ -67,6 +67,8 @@
     private trackView!: any;
     @Action('loadRecommendation', {namespace: VIEWER_STORE_NAME})
     private recommend!: any;
+    @Action('removeGallery', {namespace: VIEWER_STORE_NAME})
+    private removeGallery!: any;
     @Action('skipToImages', {namespace: VIEWER_STORE_NAME})
     private skipToImages!: any;
     private scrollTimeout: any = null;

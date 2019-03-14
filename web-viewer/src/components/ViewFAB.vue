@@ -26,14 +26,22 @@
         v-list-tile
           v-list-tile-title
             router-link(to="/") Back to home
+        v-list-tile(@click="remove")
+          v-list-tile-title Remove
 
 </template>
 
 <script lang="ts">
-  import { Component, Prop, Vue } from 'vue-property-decorator';
+  import {Component, Prop, Vue} from 'vue-property-decorator';
 
   @Component({})
   export default class ViewFAB extends Vue {
     @Prop() private scrollTo!: any;
+    @Prop() private removeGallery!: any;
+
+    public remove() {
+      this.removeGallery();
+      this.$router.back();
+    }
   }
 </script>
