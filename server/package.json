@@ -29,7 +29,6 @@
     "@nestjs/jwt": "^0.2.1",
     "@nestjs/mongoose": "^5.2.2",
     "@nestjs/typeorm": "^5.2.2",
-    "@types/lokijs": "^1.5.2",
     "@types/mongoose": "^5.3.22",
     "cache-manager": "^2.9.0",
     "class-transformer": "^0.2.0",
@@ -39,13 +38,12 @@
     "fastify": "^1.13.0",
     "fastify-formbody": "^2.0.1",
     "helmet": "^3.15.0",
-    "lokijs": "^1.5.5",
     "mongoose": "^5.4.19",
     "reflect-metadata": "^0.1.12",
     "rxjs": "^6.2.2",
+    "thumbsupply": "^0.4.0",
     "typeorm": "^0.2.8",
-    "typescript": "^3.0.1",
-    "video-thumbnail": "^1.2.0"
+    "typescript": "^3.0.1"
   },
   "devDependencies": {
     "@nestjs/testing": "^5.1.0",

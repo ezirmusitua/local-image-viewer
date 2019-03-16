@@ -1,3 +1,3 @@
-$env:REPO='E:\advanced-gallery\data\images'
+$env:REPO='E:\Media'
 cd server
 yarn start

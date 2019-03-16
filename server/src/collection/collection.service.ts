@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 import * as crypto from 'crypto';
+import * as thumbsupply from 'thumbsupply';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
@@ -105,7 +106,6 @@ export class CollectionService {
   async loadFromRepo() {
     console.info('Start Loading From REPO: ', REPO);
     const candidates = await walkRepo(REPO);
-    console.log('candidates length: ', candidates.length);
     await this.fileModel.deleteMany({hash: {$in: candidates.map(c => c.hash)}});
     const galleries = candidates
       .filter(f => f.isDir)
@@ -122,21 +122,17 @@ export class CollectionService {
     const ROUND_CAPACITY = 20;
     const collectionTotalRound = Math.ceil((collections.length) / ROUND_CAPACITY);
     for (const round of Array.from({length: collectionTotalRound}).map((v, k) => k)) {
-
       const promises = collections
         .slice(round * ROUND_CAPACITY, (round + 1) * ROUND_CAPACITY)
         .map(c => this.collectionModel.create(c));
       await Promise.all(promises);
-      console.info('Collection Progress: ', (round / collectionTotalRound).toFixed(2));
     }
     const fileTotalRound = Math.ceil(candidates.length / ROUND_CAPACITY);
     for (const round of Array.from({length: fileTotalRound}).map((v, k) => k)) {
-      console.debug('file round: ', round);
       const promises = candidates
         .slice(round * ROUND_CAPACITY, (round + 1) * ROUND_CAPACITY)
         .map(f => this.fileModel.create(f));
       await Promise.all(promises);
-      console.info('File Progress: ', (round / fileTotalRound).toFixed(2));
     }
   }
 
@@ -216,11 +212,20 @@ export class CollectionService {
   async thumbnail(id: string) {
     const collection = await this
       .collectionModel
-      .findOne({_id: id, valid: true}, {thumbnail: 1})
+      .findOne({_id: id, valid: true}, {hash: 1, category: 1, thumbnail: 1})
       .lean()
       .exec();
     if (!collection) throw Error(`Collection not found`);
-    return this.image(collection.thumbnail);
+    if (collection.category === CollectionCategory.GALLERY) return this.image(collection.thumbnail);
+    // handle thumbnail of video
+    const video = await this.fileModel.findOne({hash: collection.hash}).lean().exec();
+    const videoThumbnail = await thumbsupply.generateThumbnail(video.path, {
+      size: thumbsupply.ThumbSize.LARGE,
+      timestamp: '15%',
+      cacheDir: '../.cache',
+      mimetype: video.mimeType,
+    });
+    return {type: 'video/mp4', content: fs.readFileSync(videoThumbnail)};
   }
 
   async detail(id: string) {

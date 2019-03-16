@@ -23,7 +23,7 @@ export const FileSchema = new mongoose.Schema({
     required: true,
   },
   isDir: {
-    type: String,
+    type: Boolean,
     required: true,
   },
   ctime: {
