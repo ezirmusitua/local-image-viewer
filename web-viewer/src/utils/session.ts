@@ -1,5 +1,5 @@
-import { SessionAPIs, SessionResource } from '@/resources/session'
-import { Resource } from '@/resources/Resource'
+import {SessionAPIs, SessionResource} from '@/resources/session';
+import {Resource} from '@/resources/Resource';
 
 export class SessionUtil {
   public static token: string = '';
@@ -11,6 +11,6 @@ export class SessionUtil {
   public static async startSession() {
     const {token} = await SessionResource.request(SessionAPIs.START);
     SessionUtil.token = token;
-    Resource.setAuthorizationToken(token)
+    Resource.setAuthorizationToken(token);
   }
 }

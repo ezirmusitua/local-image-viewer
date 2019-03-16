@@ -1,5 +1,5 @@
-import { GalleryAPIs, GalleryResource } from '@/resources/gallery'
-import { SessionUtil } from '@/utils/session'
+import {CollectionAPIs, CollectionResource} from '@/resources/collection';
+import {SessionUtil} from '@/utils/session';
 
 export const HOME_STORE_NAME = 'home';
 export const HOME_FILTER_PAGE_SIZE = 9;
@@ -10,8 +10,8 @@ interface HomeState {
     pageSize: number,
     pageIndex: number,
   },
-  galleries: object[],
-  galleryCount: number,
+  collections: object[],
+  collectionCount: number,
 }
 
 const state: HomeState = {
@@ -20,23 +20,23 @@ const state: HomeState = {
     pageIndex: 1,
     name: '',
   },
-  galleries: [],
-  galleryCount: 0,
+  collections: [],
+  collectionCount: 0,
 };
 
 const getters = {
   pageCount(s: HomeState, g: object, rs: object, rg: object) {
-    const {galleryCount, filter: {pageSize}} = s;
-    return Math.ceil(galleryCount / pageSize);
+    const {collectionCount, filter: {pageSize}} = s;
+    return Math.ceil(collectionCount / pageSize);
   },
 };
 
 const mutations = {
-  changeGalleries(s: HomeState, galleries: object[]) {
-    s.galleries = galleries;
+  changeCollections(s: HomeState, galleries: object[]) {
+    s.collections = galleries;
   },
-  changeGalleryCount(s: HomeState, count: number) {
-    s.galleryCount = count;
+  changeCollectionCount(s: HomeState, count: number) {
+    s.collectionCount = count;
   },
   changePageIndex(s: HomeState, index: number) {
     s.filter = {...s.filter, pageIndex: index};
@@ -47,11 +47,11 @@ const mutations = {
 };
 
 const actions = {
-  async listGallery({commit, state: s}: { commit: any, state: HomeState }) {
+  async listCollection({commit, state: s}: { commit: any, state: HomeState }) {
     const {filter} = s;
-    const {galleries, count} = await GalleryResource.request(GalleryAPIs.LIST, filter);
-    commit('changeGalleries', galleries);
-    commit('changeGalleryCount', count);
+    const {galleries, count} = await CollectionResource.request(CollectionAPIs.LIST, filter);
+    commit('changeCollections', galleries);
+    commit('changeCollectionCount', count);
   },
   async checkAndCreateSession() {
     if (!SessionUtil.sessionStarted) {

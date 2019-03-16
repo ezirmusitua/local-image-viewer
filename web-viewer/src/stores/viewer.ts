@@ -1,4 +1,4 @@
-import {GalleryAPIs, GalleryResource} from '@/resources/gallery';
+import {CollectionAPIs, CollectionResource} from '@/resources/collection';
 import {SessionAPIs, SessionResource} from '@/resources/session';
 import {SessionUtil} from '@/utils/session';
 
@@ -6,19 +6,19 @@ export const VIEWER_STORE_NAME = 'viewer';
 export const VIEWER_ROUND_FILE_COUNT = 9;
 
 interface ViewerState {
-  galleryId: number | null,
-  gallery: any,
+  collectionId: number | null,
+  collection: any,
   displayedImages: string[],
   progress: number,
-  galleriesRecommendation: object[];
+  collectionsRecommendation: object[];
 }
 
 const state: ViewerState = {
-  galleryId: null,
-  gallery: {},
+  collectionId: null,
+  collection: {},
   displayedImages: [],
   progress: 0,
-  galleriesRecommendation: [],
+  collectionsRecommendation: [],
 };
 
 const getters = {
@@ -26,25 +26,25 @@ const getters = {
     return s.displayedImages;
   },
   fileCount(s: ViewerState) {
-    return s.gallery.fileCount;
+    return s.collection.fileCount;
   },
   shouldLoadRecommendation(s: ViewerState) {
-    return s.gallery.fileCount - s.progress * VIEWER_ROUND_FILE_COUNT < VIEWER_ROUND_FILE_COUNT;
+    return s.collection.fileCount - s.progress * VIEWER_ROUND_FILE_COUNT < VIEWER_ROUND_FILE_COUNT;
   },
   progressPercentage(s: ViewerState) {
-    return `${((s.progress * VIEWER_ROUND_FILE_COUNT) / s.gallery.fileCount) * 100}%`;
+    return `${((s.progress * VIEWER_ROUND_FILE_COUNT) / s.collection.fileCount) * 100}%`;
   },
 };
 
 const mutations = {
-  changeGallery(s: ViewerState, gallery: any) {
-    s.gallery = gallery;
+  changeCollection(s: ViewerState, collection: any) {
+    s.collection = collection;
   },
-  changeGalleryId(s: ViewerState, id: number) {
-    s.galleryId = id;
+  changeCollectionId(s: ViewerState, id: number) {
+    s.collectionId = id;
   },
-  changeRecommendGalleries(s: ViewerState, galleries: object[]) {
-    s.galleriesRecommendation = galleries;
+  changeRecommendCollections(s: ViewerState, galleries: object[]) {
+    s.collectionsRecommendation = galleries;
   },
   changeProgress(s: ViewerState, progress: number) {
     s.progress = progress;
@@ -56,27 +56,27 @@ const mutations = {
 
 const actions = {
   async getDetail({commit, state: s}: { commit: any, state: ViewerState }) {
-    const {galleryId} = s;
-    const {gallery} = await GalleryResource.request(GalleryAPIs.DETAIL,
-      {id: galleryId});
-    commit('changeRecommendGalleries', []);
-    commit('changeGallery', gallery);
+    const {collectionId} = s;
+    const {collection} = await CollectionResource.request(CollectionAPIs.DETAIL,
+      {id: collectionId});
+    commit('changeRecommendCollections', []);
+    commit('changeCollection', collection);
     commit('changeProgress', 1);
-    commit('changeDisplayedImages', gallery.files.slice(0, VIEWER_ROUND_FILE_COUNT));
+    commit('changeDisplayedImages', collection.files.slice(0, VIEWER_ROUND_FILE_COUNT));
   },
   increaseProgress({commit, state: s}: { commit: any, state: ViewerState }) {
-    const {gallery, progress} = s;
-    if (progress >= gallery.fileCount / VIEWER_ROUND_FILE_COUNT) {
+    const {collection, progress} = s;
+    if (progress >= collection.fileCount / VIEWER_ROUND_FILE_COUNT) {
       return;
     }
     const newProgress = progress + 1;
     commit('changeProgress', newProgress);
     commit('changeDisplayedImages',
-      gallery.files.slice(0, newProgress * VIEWER_ROUND_FILE_COUNT),
+      collection.files.slice(0, newProgress * VIEWER_ROUND_FILE_COUNT),
     );
   },
   skipToImages({commit, state: s}: { commit: any, state: ViewerState }, position: string) {
-    const {progress, displayedImages, gallery: {fileCount, files}} = s;
+    const {progress, displayedImages, collection: {fileCount, files}} = s;
     let newProgress = progress;
     let newDisplayedImages = [...displayedImages];
     const middleProgress = Math.ceil(fileCount / VIEWER_ROUND_FILE_COUNT / 2);
@@ -109,18 +109,17 @@ const actions = {
     if (!SessionUtil.sessionStarted) {
       await SessionUtil.startSession();
     }
-    await SessionResource.request(SessionAPIs.VIEW_GALLERY, {
-      galleryId: s.galleryId,
+    await SessionResource.request(SessionAPIs.VIEW_COLLECTION, {
+      collectionId: s.collectionId,
       lasting: 30 * 1000,
     });
   },
   async loadRecommendation({commit}: { commit: any }) {
-    const {galleries} = await GalleryResource.request(GalleryAPIs.RECOMMEND);
-    commit('changeRecommendGalleries', galleries);
+    const {galleries} = await CollectionResource.request(CollectionAPIs.RECOMMEND);
+    commit('changeRecommendCollections', galleries);
   },
-  async removeGallery({commit, state: _s}: { commit: any, state: any }) {
-    console.log('call remove');
-    await GalleryResource.request(GalleryAPIs.REMOVE_GALLERY, {id: _s.gallery.$loki});
+  async removeCollection({commit, state: _s}: { commit: any, state: any }) {
+    await CollectionResource.request(CollectionAPIs.REMOVE_COLLECTION, {id: _s.collection.$loki});
   },
 };
 

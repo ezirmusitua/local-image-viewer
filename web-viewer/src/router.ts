@@ -20,8 +20,8 @@ export default new Router({
       },
     },
     {
-      path: '/gallery/:galleryId',
-      name: 'GalleryViewer',
+      path: '/collection/:collectionId',
+      name: 'CollectionViewer',
       component: Viewer,
       meta: {
         breadcrumb: [{
@@ -31,7 +31,7 @@ export default new Router({
         }, {
           text: 'Viewer',
           disabled: true,
-          href: '/gallery/',
+          href: '/collection/',
         }],
       },
 

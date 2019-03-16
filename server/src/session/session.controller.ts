@@ -13,7 +13,7 @@ export class SessionController {
     return this.sessionService.startNew(token);
   }
 
-  @Post('/view/collection/:galleryId')
+  @Post('/view/collection/:collectionId')
   viewCollection(
     @Headers('authorization') token: string,
     @Param('collectionId') collectionId: string,

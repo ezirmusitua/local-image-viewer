@@ -1,5 +1,5 @@
-import joi, { ValidationResult, Schema, SchemaMap } from 'joi';
-import { AxiosRequestConfig } from 'axios'
+import joi, {ValidationResult, SchemaMap} from 'joi';
+import {AxiosRequestConfig} from 'axios';
 
 export enum METHODS {
   GET = 'get',

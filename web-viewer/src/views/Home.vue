@@ -13,7 +13,7 @@
       :length="pageCount"
       :limit="9"
       )
-    GalleryList.mt-3(:items="galleries" :name="filter.name")
+    CollectionList.mt-3(:items="collections" :name="filter.name")
     v-divider
     v-layout.mb-4.mt-4(justify-center)
       v-pagination(
@@ -24,35 +24,33 @@
 </template>
 
 <script lang="ts">
-  import { Component, Vue, Watch } from 'vue-property-decorator';
-  import { State, Action, Getter } from 'vuex-class';
+  import {Component, Vue, Watch} from 'vue-property-decorator';
+  import {State, Action, Getter} from 'vuex-class';
   import SearchPanel from '@/components/SearchPanel.vue';
-  import GalleryList from '@/components/GalleryList.vue';
-  import { HOME_STORE_NAME } from '@/stores/home';
-  import GalleryCard from '@/components/GalleryCard.vue';
+  import CollectionList from '@/components/CollectionList.vue';
+  import {HOME_STORE_NAME} from '@/stores/home';
 
   @Component({
     components: {
-      GalleryCard,
-      GalleryList,
+      CollectionList,
       SearchPanel,
     },
   })
   export default class Home extends Vue {
     @State('filter', {namespace: HOME_STORE_NAME}) public filter!: object;
-    @State('galleries', {namespace: HOME_STORE_NAME}) public galleries!: object[];
+    @State('collections', {namespace: HOME_STORE_NAME}) public collections!: object[];
     @Getter('pageCount', {namespace: HOME_STORE_NAME}) public pageCount!: number;
-    @Action('listGallery', {namespace: HOME_STORE_NAME}) public listGallery!: any;
+    @Action('listCollection', {namespace: HOME_STORE_NAME}) public listCollection!: any;
     @Action('checkAndCreateSession', {namespace: HOME_STORE_NAME}) public checkAndCreateSession!: any;
 
     @Watch('filter', {immediate: true, deep: true})
     private onFilterChange() {
-      this.listGallery();
+      this.listCollection();
     }
 
     private mounted() {
       this.checkAndCreateSession();
-      this.listGallery();
+      this.listCollection();
     }
   }
 </script>

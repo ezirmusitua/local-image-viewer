@@ -1,13 +1,13 @@
 <style scoped lang="scss">
-  .gallery-card {
+  .collection-card {
     width: 320px;
   }
 
 </style>
 
 <template lang="pug">
-  router-link(:to="`/gallery/${id}`")
-    v-card.gallery-card
+  router-link(:to="`/collection/${id}`")
+    v-card.collection-card
       v-img.thumbnail(
       height="340"
       alt="thumbnail"
@@ -20,31 +20,30 @@
           h3.name {{ name }}
           p.count {{ fileCount }} P
 
-
 </template>
 
 <script lang="ts">
-  import { Component, Prop, Vue } from 'vue-property-decorator';
-  import { concatThumbnail } from '@/resources/gallery';
+  import {Component, Prop, Vue} from 'vue-property-decorator';
+  import {concatThumbnail} from '@/resources/collection';
 
   @Component
-  export default class GalleryCard extends Vue {
-    @Prop() public gallery!: { id?: number, name: string, fileCount: number };
+  export default class CollectionCard extends Vue {
+    @Prop() public collection!: { _id?: string, name: string, fileCount: number };
 
     get id() {
-      return this.gallery.id;
+      return this.collection._id;
     }
 
     get thumbnail() {
-      return concatThumbnail(this.gallery)
+      return concatThumbnail(this.collection);
     }
 
     get name() {
-      return this.gallery.name;
+      return this.collection.name;
     }
 
     get fileCount() {
-      return this.gallery.fileCount;
+      return this.collection.fileCount;
     }
   }
 

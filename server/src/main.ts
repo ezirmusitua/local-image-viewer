@@ -12,11 +12,8 @@ function getLocalhostAddress() {
   let res = '0.0.0.0';
   Object.keys(interfaces).forEach((name) => {
     const details = interfaces[name];
-    // console.log(details);
     const target = details.find((detail) => detail.address.startsWith('192.168'));
-    // console.log(target);
     if (target) {
-      console.log(target);
       res = target.address;
     }
   });

@@ -12,15 +12,16 @@
     v-scroll:#scroll-target="onScroll"
     )
       v-img(
-      :height="'100vh'"
+      :max-height="'100vh'"
+      :max-width="'100vw'"
       :contain="true"
       v-for="(i, idx) in images"
       :key="idx"
-      :src="concatImage(galleryId, i)"
+      :src="concatImage(collectionId, i)"
       )
     v-divider.mt-4.mb-4
-    GalleriesRecommendation
-    ViewFAB(:scrollTo="scrollTo" :removeGallery="removeGallery")
+    CollectionsRecommendation
+    ViewFAB(:scrollTo="scrollTo" :removeCollection="removeCollection")
 
 </template>
 
@@ -28,10 +29,9 @@
   import {Component, Vue} from 'vue-property-decorator';
   import {State, Getter, Mutation, Action} from 'vuex-class';
   import {VIEWER_STORE_NAME} from '@/stores/viewer';
-  import {concatImage} from '@/resources/gallery';
+  import {concatImage} from '@/resources/collection';
   import VerticalProgress from '@/components/VerticalProgress.vue';
-  import GalleryCard from '@/components/GalleryCard.vue';
-  import GalleriesRecommendation from '@/components/GalleriesRecommendation.vue';
+  import CollectionsRecommendation from '@/components/CollectionsRecommendation.vue';
   import ViewFAB from '@/components/ViewFAB.vue';
 
   const SCROLL_THRESHOLD = 1500;
@@ -39,14 +39,13 @@
   @Component({
     components: {
       ViewFAB,
-      GalleriesRecommendation,
-      GalleryCard,
+      CollectionsRecommendation,
       VerticalProgress,
     },
   })
   export default class Viewer extends Vue {
-    @State('gallery', {namespace: VIEWER_STORE_NAME})
-    private gallery!: object;
+    @State('collection', {namespace: VIEWER_STORE_NAME})
+    private collection!: object;
     @State('progress', {namespace: VIEWER_STORE_NAME})
     private progress!: number;
     @Getter('progressPercentage', {namespace: VIEWER_STORE_NAME})
@@ -57,7 +56,7 @@
     private readonly imageCount!: number;
     @Getter('shouldLoadRecommendation', {namespace: VIEWER_STORE_NAME})
     private shouldLoadRecommendation!: boolean;
-    @Mutation('changeGalleryId', {namespace: VIEWER_STORE_NAME})
+    @Mutation('changeCollectionId', {namespace: VIEWER_STORE_NAME})
     private changeId!: any;
     @Action('increaseProgress', {namespace: VIEWER_STORE_NAME})
     private increaseProgress!: any;
@@ -67,17 +66,17 @@
     private trackView!: any;
     @Action('loadRecommendation', {namespace: VIEWER_STORE_NAME})
     private recommend!: any;
-    @Action('removeGallery', {namespace: VIEWER_STORE_NAME})
-    private removeGallery!: any;
+    @Action('removeCollection', {namespace: VIEWER_STORE_NAME})
+    private removeCollection!: any;
     @Action('skipToImages', {namespace: VIEWER_STORE_NAME})
     private skipToImages!: any;
     private scrollTimeout: any = null;
     private trackViewInterval: any = null;
     private concatImage: any = concatImage;
 
-    get galleryId() {
-      const {galleryId} = this.$route.params;
-      return galleryId;
+    get collectionId() {
+      const {collectionId} = this.$route.params;
+      return collectionId;
     }
 
     private onScroll(e: any) {
@@ -122,7 +121,7 @@
     }
 
     private mounted() {
-      this.changeId(this.galleryId);
+      this.changeId(this.collectionId);
       this.load();
       this.autoTrackView();
     }

@@ -38,23 +38,23 @@
             single-line
             clearable
             height="48"
-            placeholder="search gallery name"
+            placeholder="search collection name"
             )
 </template>
 
 <script lang="ts">
-  import { Component, Vue, Watch } from 'vue-property-decorator';
-  import { Action, State } from 'vuex-class';
-  import { HOME_STORE_NAME } from '@/stores/home';
+  import {Component, Vue, Watch} from 'vue-property-decorator';
+  import {Action, State} from 'vuex-class';
+  import {HOME_STORE_NAME} from '@/stores/home';
 
   @Component({})
   export default class SearchPanel extends Vue {
     @State('filter', {namespace: HOME_STORE_NAME}) public filter!: object;
-    @Action('listGallery', {namespace: HOME_STORE_NAME}) private listGallery!: any;
+    @Action('listCollection', {namespace: HOME_STORE_NAME}) private listCollection!: any;
 
     @Watch('filter', {deep: true, immediate: true})
     private onFilterChange() {
-      this.listGallery();
+      this.listCollection();
     }
   }
 </script>

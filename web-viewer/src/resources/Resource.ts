@@ -1,7 +1,6 @@
-import { RouteObject, Router } from '@/resources/Router'
-import { AxiosInstance } from 'axios'
-import { Config } from '@/Config'
-import axios from 'axios'
+import {RouteObject, Router} from '@/resources/Router';
+import Axios, {AxiosInstance} from 'axios';
+import {Config} from '@/Config';
 
 
 export class Resource {
@@ -18,20 +17,20 @@ export class Resource {
 
   constructor(endpoint: string, routeObjects: RouteObject[]) {
     this.endpoint = endpoint;
-    this.baseURL = `${Config.backend}/${endpoint}`
+    this.baseURL = `${Config.backend}/${endpoint}`;
     this.router = new Router();
-    this.requester = axios.create({
+    this.requester = Axios.create({
       baseURL: this.baseURL,
       timeout: 1000,
       headers: {'Content-Type': 'application/json'},
-    })
+    });
     this.register(routeObjects);
   }
 
   public register(routeObjects: RouteObject[]) {
     routeObjects.forEach((route) => {
       // NOTE: overwrite name with endpoint prefix
-      this.router.route({...route, name: `${this.endpoint}/${route.name}`})
+      this.router.route({...route, name: `${this.endpoint}/${route.name}`});
     });
   }
 
@@ -40,11 +39,11 @@ export class Resource {
     const {url, params: nParams} = this.concatParamsToUrl(route.url, params);
     const {error: qerr, value: qval} = route.paramsValidator(nParams);
     if (qerr) {
-      throw Error(`Invalid query: ${JSON.stringify(qval, null, 2)}`)
+      throw Error(`Invalid query: ${JSON.stringify(qval, null, 2)}`);
     }
     const {error: berr, value: bval} = route.dataValidator(data);
     if (berr) {
-      throw Error(`Invalid body: ${JSON.stringify(bval, null, 2)}`)
+      throw Error(`Invalid body: ${JSON.stringify(bval, null, 2)}`);
     }
     try {
       const {data: resData} = await this.requester.request({
@@ -57,7 +56,7 @@ export class Resource {
       return resData;
     } catch (err) {
       // console.error('Request error: ', err)
-      throw Error('Request Error')
+      throw Error('Request Error');
     }
   }
 
@@ -77,6 +76,6 @@ export class Resource {
         nParts.push(part);
       }
     });
-    return {url: nParts.join('/'), params: nParams}
+    return {url: nParts.join('/'), params: nParams};
   }
 }

@@ -37,10 +37,10 @@
   @Component({})
   export default class ViewFAB extends Vue {
     @Prop() private scrollTo!: any;
-    @Prop() private removeGallery!: any;
+    @Prop() private removeCollection!: any;
 
     public remove() {
-      this.removeGallery();
+      this.removeCollection();
       this.$router.back();
     }
   }
