@@ -1,17 +1,17 @@
-import { CacheModule, CacheInterceptor, Module } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { AppController } from './app.controller';
-import { SessionModule } from 'session/session.module';
-import { GalleryModule } from './gallery/gallery.module';
-import { FileModule } from './file/file.module';
-import { AuthModule } from './auth/auth.module'
+import {CacheModule, CacheInterceptor, Module} from '@nestjs/common';
+import {APP_INTERCEPTOR} from '@nestjs/core';
+import {MongooseModule} from '@nestjs/mongoose';
+import {AppController} from './app.controller';
+import {SessionModule} from 'session/session.module';
+import {CollectionModule} from './collection/collection.module';
+import {AuthModule} from './auth/auth.module';
 
 @Module({
   imports: [
     CacheModule.register(),
+    MongooseModule.forRoot('mongodb://localhost/LocalMediaManager'),
     SessionModule,
-    GalleryModule,
-    FileModule,
+    CollectionModule,
     AuthModule,
   ],
   controllers: [AppController],

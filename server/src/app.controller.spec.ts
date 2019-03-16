@@ -1,5 +1,5 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from './app.controller';
+import {Test, TestingModule} from '@nestjs/testing';
+import {AppController} from './app.controller';
 
 describe('AppController', () => {
   const app: TestingModule = null;

@@ -10,32 +10,31 @@ import {
   Query,
   Response,
 } from '@nestjs/common';
-import {GalleryService} from './gallery.service';
-import {Gallery} from './dto/gallery.dto';
+import {CollectionService} from './collection.service';
 
-const GALLERY_PATH = 'gallery';
+const COLLECTION_PREFIX = 'collection';
 
-@Controller(GALLERY_PATH)
-export class GalleryController {
+@Controller(COLLECTION_PREFIX)
+export class CollectionController {
   constructor(
-    private readonly galleryService: GalleryService,
+    private readonly collectionService: CollectionService,
   ) {
   }
 
   @Post('/upsert-repo')
   upsertRepo(): Promise<void> {
-    return this.galleryService.upsertRepo();
+    return this.collectionService.loadFromRepo();
   }
 
   @Get('/random')
-  random(): Promise<{ galleries: Gallery[], count: number }> {
-    return this.galleryService.random();
+  random() {
+    return this.collectionService.random();
   }
 
   @Get('/thumbnail')
-  thumbnail(@Query('id', ParseIntPipe) id: number, @Response() res) {
+  async thumbnail(@Query('id') id: string, @Response() res) {
     try {
-      const {content, type} = this.galleryService.thumbnail(id);
+      const {content, type} = await this.collectionService.thumbnail(id);
       return res.type(type).send(content);
     } catch (e) {
       console.error(e);
@@ -44,13 +43,13 @@ export class GalleryController {
   }
 
   @Get('/:id/image/:name')
-  image(
-    @Param('id', ParseIntPipe) id: number,
+  async image(
+    @Param('id') id: string,
     @Param('name') name: string,
     @Response() res,
   ) {
     try {
-      const {content, type} = this.galleryService.image(id, name);
+      const {content, type} = await this.collectionService.image(id, name);
       return res.type(type).send(content);
     } catch (e) {
       console.error(e);
@@ -62,13 +61,13 @@ export class GalleryController {
   recommend(
     @Headers('authorization') token: string,
   ) {
-    return this.galleryService.recommend(token);
+    return this.collectionService.recommend(token);
   }
 
   @Get('/:id')
-  detail(@Param('id', ParseIntPipe) id: number) {
+  detail(@Param('id') id: string) {
     try {
-      const gallery = this.galleryService.detail(id);
+      const gallery = this.collectionService.detail(id);
       return {gallery};
     } catch (e) {
       console.error(e);
@@ -81,24 +80,23 @@ export class GalleryController {
     @Query('name') name: string,
     @Query('pageIndex', ParseIntPipe) pageIndex: number = 1,
     @Query('pageSize', ParseIntPipe) pageSize: number = 9,
-  ): { galleries: Gallery[], count: number } {
+  ) {
     let query = {} as any;
     if (name) {
       query.name = {$regex: name};
     } else {
       query = null;
     }
-    return this.galleryService.list(query, pageIndex, pageSize);
+    return this.collectionService.list(query, pageIndex, pageSize);
   }
 
   @Delete('/invalid')
   clearInvalid() {
-    console.debug('Call clear invalid');
-    return this.galleryService.clearInvalid();
+    return this.collectionService.clearInvalid();
   }
 
   @Delete('/:id')
-  removeGallery(@Param('id', ParseIntPipe) id: number) {
-    return this.galleryService.removeGallery(id);
+  removeCollection(@Param('id') id: string) {
+    return this.collectionService.removeCollection(id);
   }
 }
