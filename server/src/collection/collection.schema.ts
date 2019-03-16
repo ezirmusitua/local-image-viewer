@@ -1,10 +1,20 @@
 import * as mongoose from 'mongoose';
 
 export const CollectionSchema = new mongoose.Schema({
+  hash: {
+    type: String,
+    index: true,
+    required: true,
+  },
   name: {
     type: String,
     index: true,
     required: true,
+  },
+  category: {
+    type: String,
+    required: true,
+    index: true,
   },
   path: {
     type: String,
@@ -13,17 +23,14 @@ export const CollectionSchema = new mongoose.Schema({
   },
   thumbnail: {
     type: String,
-    required: true,
   },
-  fileCount: {
+  imageCount: {
     type: Number,
     default: 0,
   },
-  files: {
-    type: [{
-      _id: false,
-      name: String,
-    }],
+  images: {
+    type: [String],
+    default: [],
   },
   updateAt: {
     type: Number,

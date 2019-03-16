@@ -18,7 +18,7 @@
       v-card-title(primary-title)
         .description
           h3.name {{ name }}
-          p.count {{ fileCount }} P
+          p.count {{ imageCount }} P
 
 </template>
 
@@ -28,7 +28,7 @@
 
   @Component
   export default class CollectionCard extends Vue {
-    @Prop() public collection!: { _id?: string, name: string, fileCount: number };
+    @Prop() public collection!: { _id?: string, name: string, imageCount: number };
 
     get id() {
       return this.collection._id;
@@ -42,8 +42,8 @@
       return this.collection.name;
     }
 
-    get fileCount() {
-      return this.collection.fileCount;
+    get imageCount() {
+      return this.collection.imageCount;
     }
   }
 

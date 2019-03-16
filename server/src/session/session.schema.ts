@@ -11,7 +11,7 @@ export const SessionSchema = new mongoose.Schema({
     type: [{
       _id: false,
       name: String,
-      fileCount: Number,
+      imageCount: Number,
       lasting: Number,
       score: Number,
     }],

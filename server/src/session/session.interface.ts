@@ -5,7 +5,7 @@ interface SessionInterface {
   activateAt?: number,
   collectionBrowseHistory: {
     name: string,
-    fileCount: number,
+    imageCount: number,
     lasting: number,
     score: number,
   }[]

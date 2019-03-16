@@ -41,14 +41,14 @@ export class SessionService {
     if (idx === -1) {
       session.collectionBrowseHistory.push({
         name: collection.name,
-        fileCount: collection.fileCount,
+        imageCount: collection.imageCount,
         lasting,
-        score: lasting / collection.fileCount,
+        score: lasting / collection.imageCount,
       });
     } else {
       const history = session.collectionBrowseHistory[idx];
       history.lasting += lasting;
-      history.score += lasting / history.fileCount;
+      history.score += lasting / history.imageCount;
       session.collectionBrowseHistory[idx] = history;
     }
     await this.sessionModel.updateOne({_id: session._id}, {$set: session}).exec();

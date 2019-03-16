@@ -54,6 +54,6 @@ export function concatThumbnail(collection: { _id?: string }) {
   return `${Config.backend}/${EndPoint}/thumbnail?id=${collection._id}`;
 }
 
-export function concatImage(collection: { _id: string, name: string }) {
-  return `${Config.backend}/${EndPoint}/${collection._id}/image/${collection.name}`;
+export function concatImage(hash: string) {
+  return `${Config.backend}/${EndPoint}/image/${hash}`;
 }

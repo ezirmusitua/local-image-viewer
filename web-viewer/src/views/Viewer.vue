@@ -15,9 +15,9 @@
       :max-height="'100vh'"
       :max-width="'100vw'"
       :contain="true"
-      v-for="(i, idx) in images"
+      v-for="(hash, idx) in images"
       :key="idx"
-      :src="concatImage({_id: collectionId, name: i.name})"
+      :src="concatImage(hash)"
       )
     v-divider.mt-4.mb-4
     CollectionsRecommendation
@@ -52,7 +52,7 @@
     private progressPercentage!: string;
     @Getter('images', {namespace: VIEWER_STORE_NAME})
     private readonly images!: string[];
-    @Getter('fileCount', {namespace: VIEWER_STORE_NAME})
+    @Getter('imageCount', {namespace: VIEWER_STORE_NAME})
     private readonly imageCount!: number;
     @Getter('shouldLoadRecommendation', {namespace: VIEWER_STORE_NAME})
     private shouldLoadRecommendation!: boolean;
