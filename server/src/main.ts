@@ -5,7 +5,6 @@ import * as helmet from 'helmet';
 import {NestFactory, FastifyAdapter} from '@nestjs/core';
 import {ValidationPipe} from '@nestjs/common';
 import {AppModule} from './app.module';
-import './common/database';
 
 function getLocalhostAddress() {
   const interfaces = os.networkInterfaces();

@@ -67,8 +67,7 @@ export class CollectionController {
   @Get('/:id')
   detail(@Param('id') id: string) {
     try {
-      const gallery = this.collectionService.detail(id);
-      return {gallery};
+      return this.collectionService.detail(id);
     } catch (e) {
       console.error(e);
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);

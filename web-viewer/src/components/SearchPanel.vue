@@ -43,18 +43,12 @@
 </template>
 
 <script lang="ts">
-  import {Component, Vue, Watch} from 'vue-property-decorator';
-  import {Action, State} from 'vuex-class';
+  import {Component, Vue} from 'vue-property-decorator';
+  import {State} from 'vuex-class';
   import {HOME_STORE_NAME} from '@/stores/home';
 
   @Component({})
   export default class SearchPanel extends Vue {
     @State('filter', {namespace: HOME_STORE_NAME}) public filter!: object;
-    @Action('listCollection', {namespace: HOME_STORE_NAME}) private listCollection!: any;
-
-    @Watch('filter', {deep: true, immediate: true})
-    private onFilterChange() {
-      this.listCollection();
-    }
   }
 </script>

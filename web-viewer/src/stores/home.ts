@@ -25,15 +25,15 @@ const state: HomeState = {
 };
 
 const getters = {
-  pageCount(s: HomeState, g: object, rs: object, rg: object) {
+  pageCount(s: HomeState) {
     const {collectionCount, filter: {pageSize}} = s;
     return Math.ceil(collectionCount / pageSize);
   },
 };
 
 const mutations = {
-  changeCollections(s: HomeState, galleries: object[]) {
-    s.collections = galleries;
+  changeCollections(s: HomeState, collections: object[]) {
+    s.collections = collections;
   },
   changeCollectionCount(s: HomeState, count: number) {
     s.collectionCount = count;
@@ -48,10 +48,11 @@ const mutations = {
 
 const actions = {
   async listCollection({commit, state: s}: { commit: any, state: HomeState }) {
+    console.debug('call list collection in home');
     const {filter} = s;
-    const {galleries, count} = await CollectionResource.request(CollectionAPIs.LIST, filter);
-    commit('changeCollections', galleries);
-    commit('changeCollectionCount', count);
+    const {items, totalCount} = await CollectionResource.request(CollectionAPIs.LIST, filter);
+    commit('changeCollections', items);
+    commit('changeCollectionCount', totalCount);
   },
   async checkAndCreateSession() {
     if (!SessionUtil.sessionStarted) {

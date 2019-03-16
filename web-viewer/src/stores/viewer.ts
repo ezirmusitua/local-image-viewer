@@ -57,8 +57,7 @@ const mutations = {
 const actions = {
   async getDetail({commit, state: s}: { commit: any, state: ViewerState }) {
     const {collectionId} = s;
-    const {collection} = await CollectionResource.request(CollectionAPIs.DETAIL,
-      {id: collectionId});
+    const {collection} = await CollectionResource.request(CollectionAPIs.DETAIL, {id: collectionId});
     commit('changeRecommendCollections', []);
     commit('changeCollection', collection);
     commit('changeProgress', 1);
@@ -119,7 +118,7 @@ const actions = {
     commit('changeRecommendCollections', galleries);
   },
   async removeCollection({commit, state: _s}: { commit: any, state: any }) {
-    await CollectionResource.request(CollectionAPIs.REMOVE_COLLECTION, {id: _s.collection.$loki});
+    await CollectionResource.request(CollectionAPIs.REMOVE_COLLECTION, {id: _s.collection._id});
   },
 };
 

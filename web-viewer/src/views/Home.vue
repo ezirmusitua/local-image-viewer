@@ -44,11 +44,13 @@
     @Action('checkAndCreateSession', {namespace: HOME_STORE_NAME}) public checkAndCreateSession!: any;
 
     @Watch('filter', {immediate: true, deep: true})
-    private onFilterChange() {
+    // tslint:disable-line
+    private onFilterChange(newVal, oldVal) {
+      if (!oldVal) return;
       this.listCollection();
     }
 
-    private mounted() {
+    private mounted() {// tslint:disable-line
       this.checkAndCreateSession();
       this.listCollection();
     }

@@ -9,7 +9,7 @@ import {AuthModule} from './auth/auth.module';
 @Module({
   imports: [
     CacheModule.register(),
-    MongooseModule.forRoot('mongodb://localhost/LocalMediaManager'),
+    MongooseModule.forRoot('mongodb://localhost:27017/LocalMediaManager'),
     SessionModule,
     CollectionModule,
     AuthModule,

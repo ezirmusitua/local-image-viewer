@@ -17,7 +17,7 @@
       :contain="true"
       v-for="(i, idx) in images"
       :key="idx"
-      :src="concatImage(collectionId, i)"
+      :src="concatImage({_id: collectionId, name: i.name})"
       )
     v-divider.mt-4.mb-4
     CollectionsRecommendation
@@ -72,13 +72,14 @@
     private skipToImages!: any;
     private scrollTimeout: any = null;
     private trackViewInterval: any = null;
-    private concatImage: any = concatImage;
+    private concatImage: any = concatImage; // tslint:disable-line
 
     get collectionId() {
       const {collectionId} = this.$route.params;
       return collectionId;
     }
 
+    // tslint:disable-line
     private onScroll(e: any) {
       const {scrollHeight, scrollTop} = e.target;
       if (scrollHeight - scrollTop < SCROLL_THRESHOLD) {
@@ -94,6 +95,7 @@
       }
     }
 
+    // tslint:disable-line
     private scrollTo(position: string) {
       const scrollTarget = this.$refs.scrollTarget as any;
       this.skipToImages(position);
@@ -120,12 +122,14 @@
       this.trackViewInterval = setInterval(this.trackView, 30 * 1000);
     }
 
+    // tslint:disable-line
     private mounted() {
       this.changeId(this.collectionId);
       this.load();
       this.autoTrackView();
     }
 
+    // tslint:disable-line
     private beforeDestroy() {
       clearTimeout(this.scrollTimeout);
       this.scrollTimeout = null;

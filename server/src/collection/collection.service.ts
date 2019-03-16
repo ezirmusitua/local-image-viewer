@@ -42,6 +42,7 @@ export class CollectionService {
   }
 
   async loadFromRepo() {
+    console.info('Start Loading From REPO: ', REPO);
     const collectionPaths = fs.readdirSync(REPO)
       .reduce((res, f) => {
         const fp = path.join(REPO, f);
@@ -60,15 +61,17 @@ export class CollectionService {
         }
         return res;
       }, []);
-    console.info('Galleries Count: ', collectionPaths.length);
+    console.info('Total Collections Count: ', collectionPaths.length);
     const upsertPromises = collectionPaths.reduce((promises, {name, path: gp}) => {
       const collection = {name, path: gp} as any;
       const images = fs.readdirSync(gp)
-        .filter(f => isImage(f));
+        .filter(f => isImage(f)).map(f => ({name: f}));
       if (images.length) {
         collection.fileCount = images.length;
         collection.files = images;
-        collection.thumbnail = path.join(gp, images[0]);
+        collection.thumbnail = path.join(gp, images[0].name);
+        collection.valid = true;
+        collection.updateAt = Date.now();
         promises.push(this
           .collectionModel
           .findOneAndUpdate({path: gp}, {$set: collection}, {upsert: true})
@@ -97,15 +100,15 @@ export class CollectionService {
   }
 
   async list(query, pageIndex, pageSize) {
-    const totalCount = this.collectionModel.count({...query, valid: true}).exec();
+    const totalCount = await this.collectionModel.count({...(query || {}), valid: true}).exec();
     const collections = await this.collectionModel
-      .find({...query, valid: true}, {_id: 1, name: 1, thumbnail: 1, fileCount: 1})
+      .find({...(query || {}), valid: true}, {_id: 1, name: 1, thumbnail: 1, fileCount: 1})
       .sort({updateAt: -1})
       .skip((pageIndex - 1) * pageSize)
       .limit(pageSize)
       .lean()
       .exec();
-    return {collections, totalCount};
+    return {items: collections, totalCount};
   }
 
   async recommend(token: string) {
@@ -168,8 +171,8 @@ export class CollectionService {
     const collection = await this
       .collectionModel
       .findOne({_id: id, valid: true}).lean().exec();
-    if (!collection) throw new Error('Gallery not found');
-    return collection;
+    if (!collection) throw new Error('Collection not found');
+    return {collection};
   }
 
   async image(id: string, name: string) {
@@ -177,12 +180,13 @@ export class CollectionService {
       _id: id,
       valid: true,
     }, {
+      path: 1,
       files: 1,
     }).lean().exec();
-    const image = collection && collection.files.find(f => f === name);
+    const image = collection && collection.files.find(f => f.name === name);
     if (!image) throw Error(`Image not found`);
-    const content = fs.readFileSync(path.join(collection.path, image));
-    const type = `image/${path.extname(image).slice(1)}`;
+    const content = fs.readFileSync(path.join(collection.path, image.name));
+    const type = `image/${path.extname(image.name).slice(1)}`;
     return {content, type};
   }
 
