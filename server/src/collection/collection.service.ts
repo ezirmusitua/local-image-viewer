@@ -1,26 +1,86 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
+import * as crypto from 'crypto';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
 import {AuthService} from '../auth/auth.service';
-import {CollectionDocument} from './collection.interface';
+import {CollectionCategory, CollectionDocument, createCollectionFromFile} from './collection.interface';
 import {SessionDocument} from '../session/session.interface';
+import {FileDocument, FileInterface} from './file.interface';
 
 const REPO = process.env.REPO;
 const RANDOM_COUNT = 9;
 
-function isImage(filename) {
-  const ext = path.extname(filename);
-  return ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp'].indexOf(ext) > -1;
+function isImage(filename: string) {
+  const IMAGE_PATTERN = /([a-zA-Z0-9\s_\\.\-():])+(.png|.jpg|.jpeg|.gif|.svg|.webp)$/;
+  return IMAGE_PATTERN.test(filename);
 }
 
-function rmCollectionFolder(gp) {
-  return new Promise((resolve, reject) => rimraf(gp, (err) => {
-    if (err) return reject(err);
-    return resolve(true);
-  }));
+function isVideo(filename: string) {
+  const VIDEO_PATTERN = /([a-zA-Z0-9\s_\\.\-():])+(.mp4|.mkv|.avi|.rmvb|.mpg|.swf|.slv)$/;
+  return VIDEO_PATTERN.test(filename);
+}
+
+function getMimeType(filename: string) {
+  const extname = path.extname(filename).slice(1);
+  if (isVideo(filename)) return `video/${extname}`;
+  if (isImage(filename)) return `image/${extname}`;
+  return 'unknown';
+}
+
+function sha1(str: string) {
+  const hash = crypto.createHash('sha1');
+  hash.update(str);
+  return hash.digest('hex').slice(6);
+}
+
+function promisify(func, ...params) {
+  return new Promise((resolve, reject) => func(...params, (e) => e ? reject(e) : resolve(true)));
+}
+
+function rmCollection(cp) {
+  const isDir = fs.statSync(cp).isDirectory();
+  return promisify(isDir ? rimraf : fs.unlink, cp);
+}
+
+async function walkRepo(repoPath): Promise<FileInterface[]> {
+  return new Promise((resolve) => {
+    const dirs = [repoPath];
+    const files: FileInterface[] = [];
+    let i = 0;
+    while (i < dirs.length) {
+      const currentRoot = dirs[i];
+      console.debug('Working Dir: ', currentRoot);
+      const parentHash = sha1(currentRoot.replace(repoPath, '') || 'REPO_ROOT');
+      fs.readdirSync(currentRoot).forEach((fn) => {
+        const fp = path.join(currentRoot, fn);
+        const stat = fs.statSync(fp);
+        const isDir = stat.isDirectory();
+        const ctime = stat.ctimeMs;
+        const hash = sha1(fp.replace(repoPath, ''));
+        const mimeType = getMimeType(fn);
+        const file: FileInterface = {
+          name: fn,
+          path: fp,
+          repoPath,
+          parentHash,
+          hash,
+          isDir,
+          ctime,
+          mimeType,
+        };
+        files.push(file);
+        if (isDir) {
+          dirs.push(fp);
+          console.debug('Current dirs: ', dirs);
+        }
+      });
+      i += 1;
+    }
+    return resolve(files);
+  });
 }
 
 @Injectable()
@@ -28,6 +88,7 @@ export class CollectionService {
   constructor(
     private readonly authService: AuthService,
     @InjectModel('Collection') private readonly collectionModel: Model<CollectionDocument>,
+    @InjectModel('File') private readonly fileModel: Model<FileDocument>,
     @InjectModel('Session') private readonly sessionModel: Model<SessionDocument>,
   ) {
   }
@@ -36,50 +97,47 @@ export class CollectionService {
     return {
       _id: collection._id,
       name: collection.name,
-      fileCount: collection.fileCount,
+      imageCount: collection.imageCount,
       thumbnail: collection.thumbnail,
     };
   }
 
   async loadFromRepo() {
     console.info('Start Loading From REPO: ', REPO);
-    const collectionPaths = fs.readdirSync(REPO)
-      .reduce((res, f) => {
-        const fp = path.join(REPO, f);
-        const isDir = fs.statSync(fp).isDirectory();
-        if (!isDir) return res;
-        const dirContent = fs.readdirSync(fp);
-        const subDirs = dirContent
-          .filter(sf => fs.statSync(path.join(fp, sf)).isDirectory())
-          .map(sf => ({
-            path: path.join(fp, sf),
-            name: sf,
-          }));
-        res.concat(subDirs);
-        if (subDirs.length !== dirContent.length) {
-          res.push({path: fp, name: f});
-        }
-        return res;
+    const candidates = await walkRepo(REPO);
+    console.log('candidates length: ', candidates.length);
+    await this.fileModel.deleteMany({hash: {$in: candidates.map(c => c.hash)}});
+    const galleries = candidates
+      .filter(f => f.isDir)
+      .reduce((res, f: FileInterface) => {
+        const images = candidates.filter(sf => sf.mimeType.startsWith('image') && sf.parentHash === f.hash);
+        if (!images.length) return res;
+        return res.concat([createCollectionFromFile(CollectionCategory.GALLERY, f, images)]);
       }, []);
-    console.info('Total Collections Count: ', collectionPaths.length);
-    const upsertPromises = collectionPaths.reduce((promises, {name, path: gp}) => {
-      const collection = {name, path: gp} as any;
-      const images = fs.readdirSync(gp)
-        .filter(f => isImage(f)).map(f => ({name: f}));
-      if (images.length) {
-        collection.fileCount = images.length;
-        collection.files = images;
-        collection.thumbnail = path.join(gp, images[0].name);
-        collection.valid = true;
-        collection.updateAt = Date.now();
-        promises.push(this
-          .collectionModel
-          .findOneAndUpdate({path: gp}, {$set: collection}, {upsert: true})
-          .exec());
-      }
-      return promises;
-    }, []);
-    await Promise.all(upsertPromises);
+    const videos = candidates
+      .filter(f => f.mimeType.startsWith('video'))
+      .map((f) => createCollectionFromFile(CollectionCategory.VIDEO, f));
+    const collections = galleries.concat(videos);
+    await this.collectionModel.deleteMany({hash: {$in: collections.map(c => c.hash)}});
+    const ROUND_CAPACITY = 20;
+    const collectionTotalRound = Math.ceil((collections.length) / ROUND_CAPACITY);
+    for (const round of Array.from({length: collectionTotalRound}).map((v, k) => k)) {
+
+      const promises = collections
+        .slice(round * ROUND_CAPACITY, (round + 1) * ROUND_CAPACITY)
+        .map(c => this.collectionModel.create(c));
+      await Promise.all(promises);
+      console.info('Collection Progress: ', (round / collectionTotalRound).toFixed(2));
+    }
+    const fileTotalRound = Math.ceil(candidates.length / ROUND_CAPACITY);
+    for (const round of Array.from({length: fileTotalRound}).map((v, k) => k)) {
+      console.debug('file round: ', round);
+      const promises = candidates
+        .slice(round * ROUND_CAPACITY, (round + 1) * ROUND_CAPACITY)
+        .map(f => this.fileModel.create(f));
+      await Promise.all(promises);
+      console.info('File Progress: ', (round / fileTotalRound).toFixed(2));
+    }
   }
 
   async random() {
@@ -102,7 +160,7 @@ export class CollectionService {
   async list(query, pageIndex, pageSize) {
     const totalCount = await this.collectionModel.count({...(query || {}), valid: true}).exec();
     const collections = await this.collectionModel
-      .find({...(query || {}), valid: true}, {_id: 1, name: 1, thumbnail: 1, fileCount: 1})
+      .find({...(query || {}), valid: true}, {_id: 1, name: 1, thumbnail: 1, imageCount: 1})
       .sort({updateAt: -1})
       .skip((pageIndex - 1) * pageSize)
       .limit(pageSize)
@@ -148,7 +206,7 @@ export class CollectionService {
       .find({
         name: {$in: collectionNames},
         valid: true,
-      }, {_id: 1, name: 1, thumbnail: 1, fileCount: 1})
+      }, {_id: 1, name: 1, thumbnail: 1, imageCount: 1})
       .limit(5)
       .lean()
       .exec();
@@ -162,9 +220,7 @@ export class CollectionService {
       .lean()
       .exec();
     if (!collection) throw Error(`Collection not found`);
-    const content = fs.readFileSync(collection.thumbnail);
-    const type = `image/${path.extname(collection.thumbnail).slice(1)}`;
-    return {content, type};
+    return this.image(collection.thumbnail);
   }
 
   async detail(id: string) {
@@ -175,18 +231,11 @@ export class CollectionService {
     return {collection};
   }
 
-  async image(id: string, name: string) {
-    const collection = await this.collectionModel.findOne({
-      _id: id,
-      valid: true,
-    }, {
-      path: 1,
-      files: 1,
-    }).lean().exec();
-    const image = collection && collection.files.find(f => f.name === name);
+  async image(hash: string) {
+    const image = await this.fileModel.findOne({hash}).lean().exec();
     if (!image) throw Error(`Image not found`);
-    const content = fs.readFileSync(path.join(collection.path, image.name));
-    const type = `image/${path.extname(image.name).slice(1)}`;
+    const content = fs.readFileSync(image.path);
+    const type = image.mimeType;
     return {content, type};
   }
 
@@ -204,7 +253,7 @@ export class CollectionService {
     }, []);
     const length = Math.ceil(invalidCollections.length / 20);
     for (const r of Array.from({length}).map((_v, k) => k)) {
-      const promises = invalidCollections.slice(r, (r + 1) * 20).map((g) => rmCollectionFolder(g.path));
+      const promises = invalidCollections.slice(r, (r + 1) * 20).map((g) => rmCollection(g.path));
       await Promise.all(promises);
     }
     await this.collectionModel.deleteMany({_id: {$in: invalidCollections.map(c => c._id)}}).exec();

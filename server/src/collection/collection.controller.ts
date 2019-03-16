@@ -22,8 +22,9 @@ export class CollectionController {
   }
 
   @Post('/upsert-repo')
-  upsertRepo(): Promise<void> {
-    return this.collectionService.loadFromRepo();
+  upsertRepo() {
+    this.collectionService.loadFromRepo();
+    return {status: 'started'};
   }
 
   @Get('/random')
@@ -42,14 +43,13 @@ export class CollectionController {
     }
   }
 
-  @Get('/:id/image/:name')
+  @Get('/image/:hash')
   async image(
-    @Param('id') id: string,
-    @Param('name') name: string,
+    @Param('hash') hash: string,
     @Response() res,
   ) {
     try {
-      const {content, type} = await this.collectionService.image(id, name);
+      const {content, type} = await this.collectionService.image(hash);
       return res.type(type).send(content);
     } catch (e) {
       console.error(e);

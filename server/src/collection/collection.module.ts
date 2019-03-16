@@ -5,6 +5,7 @@ import {CollectionController} from './collection.controller';
 import {AuthModule} from '../auth/auth.module';
 import {CollectionSchema} from './collection.schema';
 import {SessionSchema} from '../session/session.schema';
+import {FileSchema} from './file.schema';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import {SessionSchema} from '../session/session.schema';
     MongooseModule.forFeature([
       {name: 'Collection', schema: CollectionSchema},
       {name: 'Session', schema: SessionSchema},
+      {name: 'File', schema: FileSchema},
     ]),
   ],
   providers: [CollectionService],
