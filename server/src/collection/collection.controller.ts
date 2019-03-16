@@ -9,6 +9,7 @@ import {
   Post,
   Query,
   Response,
+  Request,
 } from '@nestjs/common';
 import {CollectionService} from './collection.service';
 
@@ -55,6 +56,15 @@ export class CollectionController {
       console.error(e);
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
+  }
+
+  @Get('/video/:hash')
+  async video(
+    @Param('hash') hash: string,
+    @Request() req,
+    @Response() res,
+  ) {
+    return this.collectionService.video(hash, req, res);
   }
 
   @Get('/recommend')

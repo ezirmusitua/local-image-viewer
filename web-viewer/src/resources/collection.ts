@@ -57,3 +57,7 @@ export function concatThumbnail(collection: { _id?: string }) {
 export function concatImage(hash: string) {
   return `${Config.backend}/${EndPoint}/image/${hash}`;
 }
+
+export function concatVideo(hash: string) {
+  return `${Config.backend}/${EndPoint}/video/${hash}`;
+}

@@ -22,6 +22,16 @@ const state: ViewerState = {
 };
 
 const getters = {
+  isVideo(s: ViewerState) {
+    return s.collection.category === 'video';
+  },
+  videoHash(s: ViewerState) {
+    console.log(s.collection);
+    return s.collection.hash;
+  },
+  videoType(s: ViewerState) {
+    return s.collection.mimeType;
+  },
   images(s: ViewerState) {
     return s.displayedImages;
   },

@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as rimraf from 'rimraf';
 import * as crypto from 'crypto';
 import * as thumbsupply from 'thumbsupply';
-import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable, Request, Response} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
 import {AuthService} from '../auth/auth.service';
@@ -242,6 +242,34 @@ export class CollectionService {
     const content = fs.readFileSync(image.path);
     const type = image.mimeType;
     return {content, type};
+  }
+
+  async video(hash: string, req, res) {
+    const video = await this.fileModel.findOne({hash}).lean().exec();
+    const stat = fs.statSync(video.path);
+    const videoSize = stat.size;
+    const range = req.headers.range;
+    try {
+
+      if (range) {
+        const parts = range.replace(/bytes=/, '').split('-');
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : videoSize - 1;
+        const chunkSize = (end - start) + 1;
+        const fileChunk = fs.createReadStream(video.path, {start, end});
+        res
+          .header('content-range', `bytes ${start}-${end}/${videoSize}`)
+          .header('accept-range', 'bytes')
+          .header('content-length', chunkSize)
+          .header('content-type', video.mimeType)
+          .code(206)
+          .send(fileChunk);
+      } else {
+        res.send(fs.createReadStream(video.path));
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   async removeCollection(id: string) {

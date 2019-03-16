@@ -18,7 +18,7 @@
       v-card-title(primary-title)
         .description
           h3.name {{ name }}
-          p.count {{ imageCount }} P
+          p(v-if="imageCount").count {{ imageCount }} P
 
 </template>
 

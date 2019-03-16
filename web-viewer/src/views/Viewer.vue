@@ -7,7 +7,11 @@
 <template lang="pug">
   div#scroll-target(style="height: 100vh; overflow-y: scroll" ref="scrollTarget")
     VerticalProgress(:progress-percentage="progressPercentage")
+    v-layout(v-if="isVideo" style="height: 100%")
+      video(controls height="100%" width="100%")
+        source(:src="concatVideo(videoHash)" :type="videoType")
     v-layout(
+    v-if="!isVideo"
     column
     v-scroll:#scroll-target="onScroll"
     )
@@ -29,7 +33,7 @@
   import {Component, Vue} from 'vue-property-decorator';
   import {State, Getter, Mutation, Action} from 'vuex-class';
   import {VIEWER_STORE_NAME} from '@/stores/viewer';
-  import {concatImage} from '@/resources/collection';
+  import {concatImage, concatVideo} from '@/resources/collection';
   import VerticalProgress from '@/components/VerticalProgress.vue';
   import CollectionsRecommendation from '@/components/CollectionsRecommendation.vue';
   import ViewFAB from '@/components/ViewFAB.vue';
@@ -50,6 +54,12 @@
     private progress!: number;
     @Getter('progressPercentage', {namespace: VIEWER_STORE_NAME})
     private progressPercentage!: string;
+    @Getter('isVideo', {namespace: VIEWER_STORE_NAME})
+    private isVideo!: boolean;
+    @Getter('videoHash', {namespace: VIEWER_STORE_NAME})
+    private videoHash!: string;
+    @Getter('videoType', {namespace: VIEWER_STORE_NAME})
+    private videoType!: string;
     @Getter('images', {namespace: VIEWER_STORE_NAME})
     private readonly images!: string[];
     @Getter('imageCount', {namespace: VIEWER_STORE_NAME})
@@ -73,6 +83,7 @@
     private scrollTimeout: any = null;
     private trackViewInterval: any = null;
     private concatImage: any = concatImage; // tslint:disable-line
+    private concatVideo: any = concatVideo; // tslint:disable-line
 
     get collectionId() {
       const {collectionId} = this.$route.params;
