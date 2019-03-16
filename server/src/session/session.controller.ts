@@ -1,24 +1,24 @@
-import { Controller, Headers, HttpException, HttpStatus, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
-import { SessionService } from './session.service';
+import {Controller, Headers, Param, ParseIntPipe, Post, Query} from '@nestjs/common';
+import {SessionService} from './session.service';
 
-const SESSION_PATH = 'session';
+const SESSION_PREFIX = 'session';
 
-@Controller(SESSION_PATH)
+@Controller(SESSION_PREFIX)
 export class SessionController {
   constructor(private readonly sessionService: SessionService) {
   }
 
   @Post()
-  start(@Headers('authorization') token: string): { token: string } {
+  start(@Headers('authorization') token: string) {
     return this.sessionService.startNew(token);
   }
 
-  @Post('/view/gallery/:galleryId')
-  viewGallery(
+  @Post('/view/collection/:galleryId')
+  viewCollection(
     @Headers('authorization') token: string,
-    @Param('galleryId', ParseIntPipe) galleryId: number,
+    @Param('collectionId') collectionId: string,
     @Query('lasting', ParseIntPipe) lasting: number,
   ): void {
-    this.sessionService.viewGallery(token, galleryId, lasting);
+    this.sessionService.viewCollection(token, collectionId, lasting);
   }
 }
