@@ -8,7 +8,7 @@ export interface FileInterface {
   hash: string,
   isDir: boolean,
   ctime?: number,
-  mimeType?: string
+  mimeType?: string,
 }
 
 export type FileDocument = FileInterface & Document;

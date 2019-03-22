@@ -3,7 +3,7 @@ import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {AuthService} from '../auth/auth.service';
 import {SessionDocument} from './session.interface';
-import {CollectionDocument} from '../collection/collection.interface';
+import {CollectionCategory, CollectionDocument} from '../collection/collection.interface';
 
 @Injectable()
 export class SessionService {
@@ -35,15 +35,16 @@ export class SessionService {
       .lean()
       .exec();
     if (!collection) {
-      throw new HttpException('Gallery not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('Collection not found', HttpStatus.NOT_FOUND);
     }
     const idx = session.collectionBrowseHistory.findIndex((h) => h.name === collection.name);
     if (idx === -1) {
+      const imageCount = collection.category === CollectionCategory.GALLERY ? collection.imageCount : 1;
       session.collectionBrowseHistory.push({
         name: collection.name,
-        imageCount: collection.imageCount,
+        imageCount,
         lasting,
-        score: lasting / collection.imageCount,
+        score: lasting / imageCount,
       });
     } else {
       const history = session.collectionBrowseHistory[idx];

@@ -10,6 +10,7 @@ import {AuthService} from '../auth/auth.service';
 import {CollectionCategory, CollectionDocument, createCollectionFromFile} from './collection.interface';
 import {SessionDocument} from '../session/session.interface';
 import {FileDocument, FileInterface} from './file.interface';
+import {FILE} from 'dns';
 
 const REPO = process.env.REPO;
 const RANDOM_COUNT = 9;
@@ -34,7 +35,7 @@ function getMimeType(filename: string) {
 function sha1(str: string) {
   const hash = crypto.createHash('sha1');
   hash.update(str);
-  return hash.digest('hex').slice(6);
+  return hash.digest('hex').slice(0, 8);
 }
 
 function promisify(func, ...params) {
@@ -53,31 +54,32 @@ async function walkRepo(repoPath): Promise<FileInterface[]> {
     let i = 0;
     while (i < dirs.length) {
       const currentRoot = dirs[i];
-      console.debug('Working Dir: ', currentRoot);
       const parentHash = sha1(currentRoot.replace(repoPath, '') || 'REPO_ROOT');
-      fs.readdirSync(currentRoot).forEach((fn) => {
-        const fp = path.join(currentRoot, fn);
-        const stat = fs.statSync(fp);
-        const isDir = stat.isDirectory();
-        const ctime = stat.ctimeMs;
-        const hash = sha1(fp.replace(repoPath, ''));
-        const mimeType = getMimeType(fn);
-        const file: FileInterface = {
-          name: fn,
-          path: fp,
-          repoPath,
-          parentHash,
-          hash,
-          isDir,
-          ctime,
-          mimeType,
-        };
-        files.push(file);
-        if (isDir) {
-          dirs.push(fp);
-          console.debug('Current dirs: ', dirs);
-        }
-      });
+      fs
+        .readdirSync(currentRoot)
+        .sort()
+        .forEach((fn) => {
+          const fp = path.join(currentRoot, fn);
+          const stat = fs.statSync(fp);
+          const isDir = stat.isDirectory();
+          const ctime = stat.ctimeMs;
+          const hash = sha1(fp.replace(repoPath, ''));
+          const mimeType = getMimeType(fn);
+          const file: FileInterface = {
+            name: fn,
+            path: fp,
+            repoPath,
+            parentHash,
+            hash,
+            isDir,
+            ctime,
+            mimeType,
+          };
+          files.push(file);
+          if (isDir) {
+            dirs.push(fp);
+          }
+        });
       i += 1;
     }
     return resolve(files);
@@ -94,46 +96,62 @@ export class CollectionService {
   ) {
   }
 
-  private static wrapCollectionListReturn(collection) {
-    return {
-      _id: collection._id,
-      name: collection.name,
-      imageCount: collection.imageCount,
-      thumbnail: collection.thumbnail,
-    };
+  async pickUpNewFiles(candidates) {
+    const existsHashes = await this.collectionModel.distinct('hash').lean().exec();
+    const existsHashSet = new Set(existsHashes);
+    return candidates.filter(c => !existsHashSet.has(c.hash) && !existsHashSet.has(c.parentHash));
   }
 
-  async loadFromRepo() {
-    console.info('Start Loading From REPO: ', REPO);
+  async loadNewCollectionsFromRepo() {
+    /**
+     * NOTE: about handle REPO root changed files:
+     * i think if files root or files changed, it should handle in other part of the application,
+     * not in the moment of loading collections form REPO,
+     * so, change the name of this function is a good idea
+     */
+    console.time('Prepare Candidates');
+    console.info('Start loading from REPO: ', REPO);
     const candidates = await walkRepo(REPO);
-    await this.fileModel.deleteMany({hash: {$in: candidates.map(c => c.hash)}});
-    const galleries = candidates
-      .filter(f => f.isDir)
-      .reduce((res, f: FileInterface) => {
-        const images = candidates.filter(sf => sf.mimeType.startsWith('image') && sf.parentHash === f.hash);
-        if (!images.length) return res;
-        return res.concat([createCollectionFromFile(CollectionCategory.GALLERY, f, images)]);
-      }, []);
-    const videos = candidates
-      .filter(f => f.mimeType.startsWith('video'))
-      .map((f) => createCollectionFromFile(CollectionCategory.VIDEO, f));
-    const collections = galleries.concat(videos);
-    await this.collectionModel.deleteMany({hash: {$in: collections.map(c => c.hash)}});
-    const ROUND_CAPACITY = 20;
-    const collectionTotalRound = Math.ceil((collections.length) / ROUND_CAPACITY);
+    console.info('Candidate count: ', candidates.length);
+    const newFiles = await this.pickUpNewFiles(candidates);
+    const newCollections = newFiles.filter(f => f.isDir || f.mimeType.startsWith('video'));
+    console.info('New collection count', newCollections.length);
+    console.timeEnd('Prepare Candidates');
+    const collections = [];
+    console.time('Construct Collections');
+    newCollections.forEach((f: FileInterface) => {
+      if (f.mimeType.startsWith('video')) {
+        collections.push(createCollectionFromFile(CollectionCategory.VIDEO, f));
+      } else {
+        const images = candidates.filter(c => c.mimeType.startsWith('image') && c.parentHash === f.hash);
+        if (images && images.length) {
+          collections.push(createCollectionFromFile(CollectionCategory.GALLERY, f, images));
+        }
+      }
+    }, []);
+    console.time('Construct Collections');
+    console.info('Collection is ready: ', collections.length);
+    console.time('Insert Collections');
+    const COLLECTION_ROUND_CAPACITY = 25;
+    const collectionTotalRound = Math.ceil((collections.length) / COLLECTION_ROUND_CAPACITY);
     for (const round of Array.from({length: collectionTotalRound}).map((v, k) => k)) {
       const promises = collections
-        .slice(round * ROUND_CAPACITY, (round + 1) * ROUND_CAPACITY)
+        .slice(round * COLLECTION_ROUND_CAPACITY, (round + 1) * COLLECTION_ROUND_CAPACITY)
         .map(c => this.collectionModel.create(c));
       await Promise.all(promises);
     }
-    const fileTotalRound = Math.ceil(candidates.length / ROUND_CAPACITY);
+    console.timeEnd('Insert Collections');
+    console.time('Insert Files');
+    const FILE_ROUND_CAPACITY = 50;
+    const fileTotalRound = Math.ceil(newFiles.length / FILE_ROUND_CAPACITY);
     for (const round of Array.from({length: fileTotalRound}).map((v, k) => k)) {
-      const promises = candidates
-        .slice(round * ROUND_CAPACITY, (round + 1) * ROUND_CAPACITY)
+      const promises = newFiles
+        .slice(round * FILE_ROUND_CAPACITY, (round + 1) * FILE_ROUND_CAPACITY)
         .map(f => this.fileModel.create(f));
       await Promise.all(promises);
     }
+    console.timeEnd('Insert Files');
+    console.info('Repo Loaded');
   }
 
   async random() {
@@ -144,11 +162,17 @@ export class CollectionService {
     }
     const promises = [];
     for (const pos of set.values()) {
-      promises.push(this.collectionModel.findOne({valid: true}).skip(pos).lean().exec());
+      promises.push(
+        this.collectionModel
+          .findOne({valid: true}, {_id: 1, name: 1, thumbnail: 1, imageCount: 1})
+          .skip(pos)
+          .lean()
+          .exec(),
+      );
     }
     const collections = await Promise.all(promises);
     return {
-      items: collections.map(CollectionService.wrapCollectionListReturn),
+      items: collections,
       count: collections.length,
     };
   }
@@ -249,26 +273,21 @@ export class CollectionService {
     const stat = fs.statSync(video.path);
     const videoSize = stat.size;
     const range = req.headers.range;
-    try {
-
-      if (range) {
-        const parts = range.replace(/bytes=/, '').split('-');
-        const start = parseInt(parts[0], 10);
-        const end = parts[1] ? parseInt(parts[1], 10) : videoSize - 1;
-        const chunkSize = (end - start) + 1;
-        const fileChunk = fs.createReadStream(video.path, {start, end});
-        res
-          .header('content-range', `bytes ${start}-${end}/${videoSize}`)
-          .header('accept-range', 'bytes')
-          .header('content-length', chunkSize)
-          .header('content-type', video.mimeType)
-          .code(206)
-          .send(fileChunk);
-      } else {
-        res.send(fs.createReadStream(video.path));
-      }
-    } catch (e) {
-      console.error(e);
+    if (range) {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : videoSize - 1;
+      const chunkSize = (end - start) + 1;
+      const fileChunk = fs.createReadStream(video.path, {start, end});
+      res
+        .header('content-range', `bytes ${start}-${end}/${videoSize}`)
+        .header('accept-range', 'bytes')
+        .header('content-length', chunkSize)
+        .header('content-type', video.mimeType)
+        .code(206)
+        .send(fileChunk);
+    } else {
+      res.send(fs.createReadStream(video.path));
     }
   }
 

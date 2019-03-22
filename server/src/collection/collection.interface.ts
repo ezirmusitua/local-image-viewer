@@ -31,7 +31,7 @@ export function createCollectionFromFile(
     name: file.name,
     category,
     path: file.path,
-    thumbnail: images ? images[0].hash : '',
+    thumbnail: images && images.length ? images[0].hash : '',
     imageCount: images ? images.length : 0,
     images: images ? images.map(i => i.hash) : [],
     updateAt: file.ctime,

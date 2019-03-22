@@ -24,7 +24,7 @@ export class CollectionController {
 
   @Post('/upsert-repo')
   upsertRepo() {
-    this.collectionService.loadFromRepo();
+    this.collectionService.loadNewCollectionsFromRepo();
     return {status: 'started'};
   }
 
